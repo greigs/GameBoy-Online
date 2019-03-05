@@ -19,6 +19,19 @@ This version makes the following changes.
 - Add your ROM file as `rom/game.gb` (or edit romPath in js/other/mobile.js to point to your ROM file)
 - Upload to a webserver and visit index.html
 
+## Keyboard Controls
+
+Up - Up Arrow / W  
+Down - Down Arrow / S  
+Left - Left Arrow / A  
+Right - Right Arrow / D  
+A - Alt / Z / J  
+B - Ctrl / K / X  
+Start - Enter  
+Select - Shift  
+
+Edit by changing `bindKeyboard` in `js/other/controls.js`.
+
 ##License
 
 **Copyright (C) 2010 - 2016 Grant Galitz**
