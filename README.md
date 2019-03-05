@@ -32,7 +32,7 @@ Select - Shift
 
 Edit by changing `bindKeyboard` in `js/other/controls.js`.
 
-##License
+## License
 
 **Copyright (C) 2010 - 2016 Grant Galitz**
 
