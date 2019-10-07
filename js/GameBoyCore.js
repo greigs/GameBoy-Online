@@ -260,8 +260,8 @@ function GameBoyCore(canvas, ROMImage) {
 	this.canvasBuffer = null;			//imageData handle
 	this.pixelStart = 0;				//Temp variable for holding the current working framebuffer offset.
 	//Variables used for scaling in JS:
-	this.onscreenWidth = this.offscreenWidth = 160;
-	this.onscreenHeight = this.offscreenHeight = 144;
+	this.onscreenWidth = this.offscreenWidth = 64;
+	this.onscreenHeight = this.offscreenHeight = 64;
 	this.offscreenRGBCount = this.onscreenWidth * this.onscreenHeight * 4;
 	this.resizePathClear = true;
 	//Initialize the white noise cache tables ahead of time:
@@ -4980,24 +4980,16 @@ GameBoyCore.prototype.MBCRAMUtilized = function () {
 GameBoyCore.prototype.recomputeDimension = function () {
 	initNewCanvas();
 	//Cache some dimension info:
-	this.onscreenWidth = this.canvas.width;
-	this.onscreenHeight = this.canvas.height;
-	if (window && window.mozRequestAnimationFrame || (navigator.userAgent.toLowerCase().indexOf("gecko") != -1 && navigator.userAgent.toLowerCase().indexOf("like gecko") == -1)) {
-		//Firefox slowness hack:
-		this.canvas.width = this.onscreenWidth = (!settings[12]) ? 160 : this.canvas.width;
-		this.canvas.height = this.onscreenHeight = (!settings[12]) ? 144 : this.canvas.height;
-	}
-	else {
-		this.onscreenWidth = this.canvas.width;
-		this.onscreenHeight = this.canvas.height;
-	}
+	this.onscreenWidth = 64;
+	this.onscreenHeight = 64;
+
 	this.offscreenWidth = (!settings[12]) ? 160 : this.canvas.width;
 	this.offscreenHeight = (!settings[12]) ? 144 : this.canvas.height;
 	this.offscreenRGBCount = this.offscreenWidth * this.offscreenHeight * 4;
 }
 GameBoyCore.prototype.initLCD = function () {
 	this.recomputeDimension();
-	if (this.offscreenRGBCount != 92160) {
+	if (false) {
 		//Only create the resizer handle if we need it:
 		this.compileResizeFrameBufferFunction();
 	}
