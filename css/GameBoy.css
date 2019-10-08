@@ -49,7 +49,7 @@ div.window {
 }
 div#GameBoy {
 	min-height: 54px;
-	min-width: 64px;
+	min-width: 384px;
 }
 div#input_select, div#save_importer {
 	min-height: 100px;

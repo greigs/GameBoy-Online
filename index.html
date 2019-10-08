@@ -1,26 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+﻿<html>
     <head>
-        <style type="text/css">@import url(&quot;css/GameBoy.css&quot;);</style>
-        <script type="text/javascript">
-    var DEBUG_MESSAGES = false;
-    var DEBUG_WINDOWING = false;
-    window.onload = function () {
-        windowingInitialize();
-    }
-        </script>
-        <script type="text/javascript" src="js/other/windowStack.js"/>
-        <script type="text/javascript" src="js/other/terminal.js"/>
-        <script type="text/javascript" src="js/other/gui.js"/>
-        <script type="text/javascript" src="js/other/base64.js"/>
-        <script type="text/javascript" src="js/other/json2.js"/>
-        <script type="text/javascript" src="js/other/swfobject.js"/>
-        <script type="text/javascript" src="js/other/resampler.js"/>
-        <script type="text/javascript" src="js/other/XAudioServer.js"/>
-        <script type="text/javascript" src="js/other/resize.js"/>
-        <script type="text/javascript" src="js/GameBoyCore.js"/>
-        <script type="text/javascript" src="js/GameBoyIO.js"/>
+       
+	   <link rel="stylesheet" type="text/css" href="css/GameBoy.css"/>
+        <script type="text/javascript" src="js/other/windowStack.js"></script>
+        <script type="text/javascript" src="js/other/terminal.js"></script>
+        <script type="text/javascript" src="js/other/zelda.js"></script>
+        <script type="text/javascript" src="js/other/gui.js"></script>
+        <script type="text/javascript" src="js/other/base64.js"></script>
+        <script type="text/javascript" src="js/other/json2.js"></script>
+        <script type="text/javascript" src="js/other/swfobject.js"></script>
+        <script type="text/javascript" src="js/other/resampler.js"></script>
+        <script type="text/javascript" src="js/other/XAudioServer.js"></script>
+        <script type="text/javascript" src="js/other/resize.js"></script>
+        <script type="text/javascript" src="js/GameBoyCore.js"></script>
+        <script type="text/javascript" src="js/GameBoyIO.js"></script>
+
         <title>GameBoy Online</title>
     </head>
     <body>
@@ -32,7 +26,7 @@
                 <span id="GameBoy_about_menu">About</span>
             </div>
             <div id="gfx">
-                <canvas id="mainCanvas"/>
+                <canvas id="canvas"/>
                 <span id="title">GameBoy</span>
                 <span id="port_title">Online</span>
             </div>
@@ -206,5 +200,13 @@
         <div id="fullscreenContainer">
             <canvas id="fullscreen" class="maximum"/>
         </div>
+		
+				 <script type="text/javascript">
+    var DEBUG_MESSAGES = false;
+    var DEBUG_WINDOWING = false;
+    
+        windowingInitialize('GameBoy', 'canvas');
+    
+        </script>
     </body>
 </html>
