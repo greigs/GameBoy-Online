@@ -4,10 +4,10 @@ class GameBoyIO {
 	gbRunInterval = null;				//GameBoyCore Timer
 	
 	
-	start(canvas, ROM) {
+	start(canvas, ROM, xoffset, yoffset) {
 		this.clearLastEmulation();
 		this.autoSave();	//If we are about to load a new game, then save the last one...
-		this.gameboy = new GameBoyCoreClass().GameBoyCore(canvas, ROM, this);
+		this.gameboy = new GameBoyCoreClass().GameBoyCore(canvas, ROM, this, xoffset, yoffset);
 		this.gameboy.openMBC = this.openSRAM;
 		this.gameboy.openRTC = this.openRTC;
 		this.gameboy.start();
