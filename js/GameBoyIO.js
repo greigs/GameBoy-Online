@@ -38,8 +38,8 @@ class GameBoyIO {
 	pause() {
 		if (this.GameBoyEmulatorInitialized()) {
 			if (this.GameBoyEmulatorPlaying()) {
-				autoSave();
-				clearLastEmulation();
+				this.autoSave();
+				this.clearLastEmulation();
 			}
 			else {
 				cout("GameBoy core has already been paused.", 1);
@@ -51,8 +51,8 @@ class GameBoyIO {
 	}
 	clearLastEmulation() {
 		if (this.GameBoyEmulatorInitialized() && this.GameBoyEmulatorPlaying()) {
-			clearInterval(gbRunInterval);
-			gameboy.stopEmulator |= 2;
+			clearInterval(this.gbRunInterval);
+			this.gameboy.stopEmulator |= 2;
 			cout("The previous emulation has been cleared.", 0);
 		}
 		else {
@@ -73,17 +73,17 @@ class GameBoyIO {
 	}
 	saveSRAM() {
 		if (this.GameBoyEmulatorInitialized()) {
-			if (gameboy.cBATT) {
+			if (this.gameboy.cBATT) {
 				try {
-					var sram = gameboy.saveSRAMState();
+					var sram = this.gameboy.saveSRAMState();
 					if (sram.length > 0) {
 						cout("Saving the SRAM...", 0);
-						if (findValue("SRAM_" + gameboy.name) != null) {
+						if (findValue("SRAM_" + this.gameboy.name) != null) {
 							//Remove the outdated storage format save:
 							cout("Deleting the old SRAM save due to outdated format.", 0);
-							deleteValue("SRAM_" + gameboy.name);
+							deleteValue("SRAM_" + this.gameboy.name);
 						}
-						setValue("B64_SRAM_" + gameboy.name, arrayToBase64(sram));
+						setValue("B64_SRAM_" + this.gameboy.name, arrayToBase64(sram));
 					}
 					else {
 						cout("SRAM could not be saved because it was empty.", 1);
@@ -96,7 +96,7 @@ class GameBoyIO {
 			else {
 				cout("Cannot save a game that does not have battery backed SRAM specified.", 1);
 			}
-			saveRTC();
+			this.saveRTC();
 		}
 		else {
 			cout("GameBoy core cannot be saved while it has not been initialized.", 1);
@@ -104,10 +104,10 @@ class GameBoyIO {
 	}
 	saveRTC() {	//Execute this when SRAM is being saved as well.
 		if (this.GameBoyEmulatorInitialized()) {
-			if (gameboy.cTIMER) {
+			if (this.gameboy.cTIMER) {
 				try {
 					cout("Saving the RTC...", 0);
-					setValue("RTC_" + gameboy.name, gameboy.saveRTCState());
+					setValue("RTC_" + this.gameboy.name, this.gameboy.saveRTCState());
 				}
 				catch (error) {
 					cout("Could not save the RTC of the current emulation state(\"" + error.message + "\").", 2);
@@ -121,8 +121,8 @@ class GameBoyIO {
 	autoSave() {
 		if (this.GameBoyEmulatorInitialized()) {
 			cout("Automatically saving the SRAM.", 0);
-			saveSRAM();
-			saveRTC();
+			this.saveSRAM();
+			this.saveRTC();
 		}
 	}
 	openSRAM(filename) {

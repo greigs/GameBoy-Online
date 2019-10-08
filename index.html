@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="css/style.css"/>
   </head>
   <body>
-    <canvas id="mainCanvas" width="64" height="64">No Canvas Support</canvas>
+    <canvas id="canvas0" width="64" height="64">No Canvas Support</canvas>
+    <canvas id="canvas1" width="64" height="64">No Canvas Support</canvas>
     <div id="gameboy_shell" style="display: none">
       <div id="controller">
         <div id="controller_dpad">
@@ -23,6 +24,7 @@
       </div>      
     </div>
     <script src="js/other/zelda.js"></script>
+    <script src="js/other/mario.js"></script>
     <script src="js/other/mobile.js"></script>
     <script src="js/other/base64.js"></script>
     <!-- <script src="js/other/swfobject.js"></script> -->
@@ -32,27 +34,7 @@
     <script src="js/other/resize.js"></script>    
     <script src="js/GameBoyCore.js"></script>
     <script src="js/GameBoyIO.js"></script>
-    <script>
-      mainCanvas = document.getElementById("mainCanvas");
-      //window.onunload = autoSave;
-      var settings = [						//Some settings.
-		false, 								//Turn on sound.
-		true,								//Boot with boot ROM first?
-		false,								//Give priority to GameBoy mode
-		1,									//Volume level set.
-		true,								//Colorize GB mode?
-		false,								//Disallow typed arrays?
-		8,									//Interval for the emulator loop.
-		10,									//Audio buffer minimum span amount over x interpreter iterations.
-		20,									//Audio buffer maximum span amount over x interpreter iterations.
-		false,								//Override to allow for MBC1 instead of ROM only (compatibility for broken 3rd-party cartridges).
-		false,								//Override MBC RAM disabling and always allow reading and writing to the banks.
-		false,								//Use the GameBoy boot ROM instead of the GameBoy Color boot ROM.
-		false,								//Scale the canvas in JS, or let the browser scale the canvas?
-		true,								//Use image smoothing based scaling?
-		[true, true, true, true]            //User controlled channel enables.
-	];
-      new GameBoyIO().start(mainCanvas, base64_decode(zeldaRomData));
-    </script>
+    <script src="js/main.js"></script>
+    
   </body>
 </html>
