@@ -4979,6 +4979,7 @@ GameBoyCore.prototype.MBCRAMUtilized = function () {
 }
 GameBoyCore.prototype.recomputeDimension = function () {
 	initNewCanvas();
+
 	//Cache some dimension info:
 	this.onscreenWidth = 64;
 	this.onscreenHeight = 64;
@@ -4986,6 +4987,13 @@ GameBoyCore.prototype.recomputeDimension = function () {
 	this.offscreenWidth = (!settings[12]) ? 160 : this.canvas.width;
 	this.offscreenHeight = (!settings[12]) ? 144 : this.canvas.height;
 	this.offscreenRGBCount = this.offscreenWidth * this.offscreenHeight * 4;
+
+	console.log({
+		w: this.canvas.width,
+		h: this.canvas.height
+	})
+
+
 }
 GameBoyCore.prototype.initLCD = function () {
 	this.recomputeDimension();
@@ -5003,14 +5011,7 @@ GameBoyCore.prototype.initLCD = function () {
 		this.canvasOffscreen.height = this.offscreenHeight;
 		this.drawContextOffscreen = this.canvasOffscreen.getContext("2d");
 		this.drawContextOnscreen = this.canvas.getContext("2d");
-		this.canvas.setAttribute("style", (this.canvas.getAttribute("style") || "") + "; image-rendering: " + ((settings[13]) ? "auto" : "-webkit-optimize-contrast") + ";" +
-		"image-rendering: " + ((settings[13]) ? "optimizeQuality" : "-o-crisp-edges") + ";" +
-		"image-rendering: " + ((settings[13]) ? "optimizeQuality" : "-moz-crisp-edges") + ";" +
-		"-ms-interpolation-mode: " + ((settings[13]) ? "bicubic" : "nearest-neighbor") + ";");
-		this.drawContextOffscreen.webkitImageSmoothingEnabled  = settings[13];
-		this.drawContextOffscreen.mozImageSmoothingEnabled = settings[13];
-		this.drawContextOnscreen.webkitImageSmoothingEnabled  = settings[13];
-		this.drawContextOnscreen.mozImageSmoothingEnabled = settings[13];
+
 		//Get a CanvasPixelArray buffer:
 		try {
 			this.canvasBuffer = this.drawContextOffscreen.createImageData(this.offscreenWidth, this.offscreenHeight);
@@ -5027,7 +5028,6 @@ GameBoyCore.prototype.initLCD = function () {
 			this.canvasBuffer.data[index + 3] = 0xFF;
 		}
 		this.graphicsBlit();
-		this.canvas.style.visibility = "visible";
 		if (this.swizzledFrame == null) {
 			this.swizzledFrame = this.getTypedArray(69120, 0xFF, "uint8");
 		}
@@ -5074,6 +5074,7 @@ GameBoyCore.prototype.GyroEvent = function (x, y) {
 	this.lowY = y & 0xFF;
 }
 GameBoyCore.prototype.initSound = function () {
+	console.log("INT SOUND")
 	this.audioResamplerFirstPassFactor = Math.max(Math.min(Math.floor(this.clocksPerSecond / 44100), Math.floor(0xFFFF / 0x1E0)), 1);
 	this.downSampleInputDivider = 1 / (this.audioResamplerFirstPassFactor * 0xF0);
 	if (settings[0]) {
@@ -5083,6 +5084,7 @@ GameBoyCore.prototype.initSound = function () {
 		this.initAudioBuffer();
 	}
 	else if (this.audioHandle) {
+		console.log("MUTE")
 		//Mute the audio output, as it has an immediate silencing effect:
 		this.audioHandle.changeVolume(0);
 	}

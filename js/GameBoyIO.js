@@ -2,7 +2,7 @@
 var gameboy = null;						//GameBoyCore object.
 var gbRunInterval = null;				//GameBoyCore Timer
 var settings = [						//Some settings.
-	true, 								//Turn on sound.
+	false, 								//Turn on sound.
 	true,								//Boot with boot ROM first?
 	false,								//Give priority to GameBoy mode
 	1,									//Volume level set.
@@ -396,7 +396,7 @@ function GameBoyGyroSignalHandler(e) {
 //The emulator will call this to sort out the canvas properties for (re)initialization.
 function initNewCanvas() {
 	if (GameBoyEmulatorInitialized()) {
-		gameboy.canvas.width = gameboy.canvas.clientWidth;
+		gameboy.canvas.width = gameboy.canvas.clientWidth;	
 		gameboy.canvas.height = gameboy.canvas.clientHeight;
 	}
 }
