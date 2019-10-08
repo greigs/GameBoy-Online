@@ -18,11 +18,21 @@ window.settings = [						//Some settings.
 	true,								//Use image smoothing based scaling?
 	[true, true, true, true]            //User controlled channel enables.
 ];
-let canvas0 = document.getElementById("canvas0");
-let gb1 = new GameBoyIO();
-gb1.start(canvas0, base64_decode(zeldaRomData));
+
+let canvas0 = document.getElementById("canvas0")
+let canvas1 = document.getElementById("canvas1")
+let gb1 = new GameBoyIO()
+gb1.start(canvas0, base64_decode(zeldaRomData))
 //gb1.pause()
 
-let canvas1 = document.getElementById("canvas1");
-let gb2 = new GameBoyIO();
-gb2.start(canvas1, base64_decode(marioRomData));
+let gb2 = new GameBoyIO()
+gb2.start(canvas1, base64_decode(marioRomData))
+//gb2.pause()
+
+
+// setTimeout(() => gb1.run(),3000)
+// setTimeout(() => gb1.pause(),6000)
+// setTimeout(() => gb1.run(),9000)
+// setTimeout(() => gb1.pause(),10000)
+// setTimeout(() => gb2.run(),12000)
+
