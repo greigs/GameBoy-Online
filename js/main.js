@@ -4,9 +4,10 @@ var ctx = canvas.getContext('2d')
 const offScreen = new OffscreenCanvas(160, 144)
 const offScreenCtx = offScreen.getContext("2d")
 let workers = []
-
-for (let i=0; i<6; i++){
-	for (let j=0; j<1; j++){
+const columnCount = 6
+const rowCount = 1
+for (let i=0; i<columnCount; i++){
+	for (let j=0; j<rowCount; j++){
 		const worker = new Worker('js/worker.js')
 		workers.push(worker)
 		worker.postMessage({ i: i, j: j });
@@ -17,7 +18,8 @@ for (let i=0; i<6; i++){
 	}
 }
 
-let active = workers[1]
+let activeIndex = 0
+let active = workers[activeIndex]
 
 let globalFrameCount = 0
 window.onkeydown = (e) =>{
@@ -33,6 +35,8 @@ const runAllAsBackground = false
 const frameDivisionAll = 5
 const frameDivisionSingle = 1
 const frameDivisionBackground = 10
+const tickInverval = 8
+const changeWorkerInterval = 5000
 
 setInterval(async () => 
 {
@@ -48,6 +52,15 @@ setInterval(async () =>
 	  } else{
 		active.postMessage({step: true, produceFrame: globalFrameCount % frameDivisionSingle === 0})
 	  }
-},8)
+},tickInverval)
 
 
+setInterval(() =>{
+  if (activeIndex === columnCount - 1){
+    activeIndex = 0
+  }
+  else{
+	activeIndex++
+  }
+  active = workers[activeIndex]
+}, changeWorkerInterval)
