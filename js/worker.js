@@ -37,9 +37,14 @@ self.onmessage = function(e) {
 
     if (e.data.step){
         gb.step(e.data.produceFrame)
-    }
-    else{
+	}
+	else if (e.data.keyDown){
+		gb.keyDown(e.data.keyDown)
+	} 
+    else if (e.data.keyUp){
+		gb.keyUp(e.data.keyUp)
+	} 
+	else{
         startgb(new OffscreenCanvas(64,64),e.data.i,e.data.j)   
-    }
-    
+    } 
 };

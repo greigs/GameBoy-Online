@@ -5010,7 +5010,7 @@ initLCD = function () {
 	try {
 		this.canvasOffscreen = new OffscreenCanvas(this.offscreenWidth, this.offscreenHeight )
 		this.drawContextOffscreen = this.canvasOffscreen.getContext("2d");
-		this.drawContextOnscreen = this.canvas.getContext("2d");
+		//this.drawContextOnscreen = this.canvas.getContext("2d");
 
 		//Get a CanvasPixelArray buffer:
 		try {

@@ -1,8 +1,27 @@
 "use strict";
+const JS_KEY_UP = 38;
+const JS_KEY_LEFT = 37;
+const JS_KEY_RIGHT = 39;
+const JS_KEY_DOWN = 40;
+const JS_KEY_ENTER = 13;
+const JS_KEY_ALT = 18;
+const JS_KEY_CTRL = 17;
+const JS_KEY_SHIFT = 16;
+
+const JS_KEY_W = 87;
+const JS_KEY_A = 65;
+const JS_KEY_S = 83;
+const JS_KEY_D = 68;
+const JS_KEY_J = 74;
+const JS_KEY_K = 75;
+
+const JS_KEY_Z = 90;
+const JS_KEY_X = 88;
 class GameBoyIO {
 	gameboy = null;						//GameBoyCore object.
 	gbRunInterval = null;				//GameBoyCore Timer
 	settings = []
+	
 	
 	start(canvas, ROM, xoffset, yoffset, settings) {
 		this.settings = settings;
@@ -405,28 +424,9 @@ class GameBoyIO {
 			}
 		}
 	}
-	bindKeyboard(){
+	keyDown(e){
 		const io = this;
-		const JS_KEY_UP = 38;
-		const JS_KEY_LEFT = 37;
-		const JS_KEY_RIGHT = 39;
-		const JS_KEY_DOWN = 40;
-		const JS_KEY_ENTER = 13;
-		const JS_KEY_ALT = 18;
-		const JS_KEY_CTRL = 17;
-		const JS_KEY_SHIFT = 16;
-		
-		const JS_KEY_W = 87;
-		const JS_KEY_A = 65;
-		const JS_KEY_S = 83;
-		const JS_KEY_D = 68;
-		const JS_KEY_J = 74;
-		const JS_KEY_K = 75;
-		
-		const JS_KEY_Z = 90;
-		const JS_KEY_X = 88;
-		window.onkeydown = (e) => {
-		  if (
+		if (
 			e.keyCode !== JS_KEY_CTRL &&
 			e.keyCode !== JS_KEY_ALT &&
 			(e.altKey || e.ctrlKey || e.metaKey || e.shiftKey)
@@ -457,12 +457,11 @@ class GameBoyIO {
 			io.GameBoyKeyDown("b");
 		  } else if (e.keyCode === JS_KEY_SHIFT) {
 			io.GameBoyKeyDown("select");
-		  }
-		  e.preventDefault();
-		};
-	  
-		window.onkeyup = (e) => {
-		  if (e.key === "Dead") {
+		  }	
+	}
+	keyUp(e){
+		const io = this;
+		if (e.key === "Dead") {
 			// Ipad keyboard fix :-/
 			// Doesn't register which key was released, so release all of them
 			["right", "left", "up", "down", "a", "b", "select", "start"].forEach(
@@ -496,6 +495,17 @@ class GameBoyIO {
 		  } else if (e.keyCode === JS_KEY_SHIFT) {
 			io.GameBoyKeyUp("select");
 		  }
+	}
+	bindKeyboard(){
+		const io = this;
+		
+		window.onkeydown = (e) => {
+		  io.keyDown(e);
+		  e.preventDefault();
+		};
+	  
+		window.onkeyup = (e) => {
+		  io.keyUp(e);
 		  e.preventDefault();
 		};
 	  }
