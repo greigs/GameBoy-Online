@@ -6245,7 +6245,7 @@ dispatchDraw = function () {
 processDraw = function (frameBuffer) {
 	this.outFrameCount++;
 
-	if (this.outFrameCount % 10 === 0){
+	if (this.outFrameCount % 2 === 0){
 		var canvasRGBALength = this.offscreenRGBCount;
 		var canvasData = this.canvasBuffer.data;
 		var bufferIndex = 0;

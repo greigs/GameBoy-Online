@@ -37,7 +37,7 @@ const offScreen = new OffscreenCanvas(160, 144)
 const offScreenCtx = offScreen.getContext("2d")
 let workers = []
 for (let i=0; i<6; i++){
-	for (let j=0; j<6; j++){
+	for (let j=0; j<1; j++){
 	    
 		const worker = new Worker('js/worker.js')
 		workers.push(worker)
@@ -51,10 +51,12 @@ for (let i=0; i<6; i++){
 
 setInterval(async () => 
 {
-	workers.forEach(async function(worker){
-    	await sleep(0.3)
-		worker.postMessage({step: true})
+	  var i = 0;
+      workers.forEach(async function(worker){
+		  i+= 20
+    	setTimeout(() => worker.postMessage({step: true}), i)
+		
 	  });
-},5)
+},8)
 
 
