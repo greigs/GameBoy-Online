@@ -41,7 +41,7 @@ function base64(data) {
 }
 function base64_decode(data) {
 	try {
-		var decode64 = window.atob(data);	//Use this native function when it's available, as it's a magnitude faster than the non-native code below.
+		var decode64 = atob(data);	//Use this native function when it's available, as it's a magnitude faster than the non-native code below.
 	}
 	catch (error) {
 		//Defaulting to non-native base64 decoding...

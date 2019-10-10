@@ -10,7 +10,9 @@
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 class GameBoyCoreClass {
- GameBoyCore = (canvas, ROMImage, gameBoyIO, xoffset, yoffset) => {
+ GameBoyCore = (canvas, ROMImage, gameBoyIO, xoffset, yoffset, settings) => {
+	this.outFrameCount = 0
+	this.settings = settings;
 	this.gameBoyIO = gameBoyIO;
 	this.xoffset = xoffset;
 	this.yoffset = yoffset;
@@ -264,9 +266,11 @@ class GameBoyCoreClass {
 	this.canvasBuffer = null;			//imageData handle
 	this.pixelStart = 0;				//Temp variable for holding the current working framebuffer offset.
 	//Variables used for scaling in JS:
-	this.onscreenWidth = this.offscreenWidth = 64;
-	this.onscreenHeight = this.offscreenHeight = 64;
-	this.offscreenRGBCount = this.onscreenWidth * this.onscreenHeight * 4;
+	this.onscreenWidth = 64;
+	this.onscreenHeight = 64;
+	this.offscreenWidth = 160;
+	this.offscreenHeight = 144;
+	this.offscreenRGBCount = this.offscreenWidth * this.offscreenWidth * 4;
 	this.resizePathClear = true;
 	//Initialize the white noise cache tables ahead of time:
 	this.intializeWhiteNoise();
@@ -4385,7 +4389,7 @@ returnFromState = function (returnedFrom) {
 	this.memoryReadJumpCompile();
 	this.memoryWriteJumpCompile();
 	this.initLCD();
-	this.initSound();
+	//this.initSound();
 	this.noiseSampleTable = (this.channel4BitRange == 0x7FFF) ? this.LSFR15Table : this.LSFR7Table;
 	this.channel4VolumeShifter = (this.channel4BitRange == 0x7FFF) ? 15 : 7;
 }
@@ -4412,7 +4416,7 @@ start = function () {
 	this.initMemory();	//Write the startup memory.
 	this.ROMLoad();		//Load the ROM into memory and get cartridge information from it.
 	this.initLCD();		//Initialize the graphics.
-	this.initSound();	//Sound object initialization.
+	//this.initSound();	//Sound object initialization.
 	this.run();			//Start the emulation.
 }
 initMemory = function () {
@@ -4611,7 +4615,7 @@ initBootstrap = function () {
 ROMLoad = function () {
 	//Load the first two ROM banks (0x0000 - 0x7FFF) into regular gameboy memory:
 	this.ROM = [];
-	this.usedBootROM = settings[1] && ((!settings[11] && this.GBCBOOTROM.length == 0x800) || (settings[11] && this.GBBOOTROM.length == 0x100));
+	this.usedBootROM = this.settings[1] && ((!this.settings[11] && this.GBCBOOTROM.length == 0x800) || (this.settings[11] && this.GBBOOTROM.length == 0x100));
 	var maxLength = this.ROMImage.length;
 	if (maxLength < 0x4000) {
 		throw(new Error("ROM image size too small."));
@@ -4619,7 +4623,7 @@ ROMLoad = function () {
 	this.ROM = this.getTypedArray(maxLength, 0, "uint8");
 	var romIndex = 0;
 	if (this.usedBootROM) {
-		if (!settings[11]) {
+		if (!this.settings[11]) {
 			//Patch in the GBC boot ROM into the memory map:
 			for (; romIndex < 0x100; ++romIndex) {
 				this.memory[romIndex] = this.GBCBOOTROM[romIndex];											//Load in the GameBoy Color BOOT ROM.
@@ -4695,7 +4699,7 @@ interpretCartridge = function () {
 	switch (this.cartridgeType) {
 		case 0x00:
 			//ROM w/o bank switching
-			if (!settings[9]) {
+			if (!this.settings[9]) {
 				MBCType = "ROM";
 				break;
 			}
@@ -4860,7 +4864,7 @@ interpretCartridge = function () {
 				cout("Only GB mode detected.", 0);
 				break;
 			case 0x32:	//Exception to the GBC identifying code:
-				if (!settings[2] && this.name + this.gameCode + this.ROM[0x143] == "Game and Watch 50") {
+				if (!this.settings[2] && this.name + this.gameCode + this.ROM[0x143] == "Game and Watch 50") {
 					this.cGBC = true;
 					cout("Created a boot exception for Game and Watch Gallery 2 (GBC ID byte is wrong on the cartridge).", 1);
 				}
@@ -4869,7 +4873,7 @@ interpretCartridge = function () {
 				}
 				break;
 			case 0x80:	//Both GB + GBC modes
-				this.cGBC = !settings[2];
+				this.cGBC = !this.settings[2];
 				cout("GB and GBC mode detected.", 0);
 				break;
 			case 0xC0:	//Only GBC mode
@@ -4928,7 +4932,7 @@ disableBootROM = function () {
 initializeTiming = function () {
 	//Emulator Timing:
 	this.clocksPerSecond = this.emulatorSpeed * 0x400000;
-	this.baseCPUCyclesPerIteration = this.clocksPerSecond / 1000 * settings[6];
+	this.baseCPUCyclesPerIteration = this.clocksPerSecond / 1000 * this.settings[6];
 	this.CPUCyclesTotalRoundoff = this.baseCPUCyclesPerIteration % 4;
 	this.CPUCyclesTotalBase = this.CPUCyclesTotal = (this.baseCPUCyclesPerIteration - this.CPUCyclesTotalRoundoff) | 0;
 	this.CPUCyclesTotalCurrent = 0;
@@ -4937,7 +4941,7 @@ setSpeed = function (speed) {
 	this.emulatorSpeed = speed;
 	this.initializeTiming();
 	if (this.audioHandle) {
-		this.initSound();
+		//this.initSound();
 	}
 }
 setupRAM = function () {
@@ -4989,16 +4993,9 @@ recomputeDimension = function () {
 	this.onscreenWidth = 64;
 	this.onscreenHeight = 64;
 
-	this.offscreenWidth = (!settings[12]) ? 160 : this.canvas.width;
-	this.offscreenHeight = (!settings[12]) ? 144 : this.canvas.height;
+	this.offscreenWidth = 160;
+	this.offscreenHeight = 144;
 	this.offscreenRGBCount = this.offscreenWidth * this.offscreenHeight * 4;
-
-	console.log({
-		w: this.canvas.width,
-		h: this.canvas.height
-	})
-
-
 }
 initLCD = function () {
 	this.recomputeDimension();
@@ -5011,9 +5008,7 @@ initLCD = function () {
 		this.resizer = null;
 	}
 	try {
-		this.canvasOffscreen = document.createElement("canvas");
-		this.canvasOffscreen.width = this.offscreenWidth;
-		this.canvasOffscreen.height = this.offscreenHeight;
+		this.canvasOffscreen = new OffscreenCanvas(this.offscreenWidth, this.offscreenHeight )
 		this.drawContextOffscreen = this.canvasOffscreen.getContext("2d");
 		this.drawContextOnscreen = this.canvas.getContext("2d");
 
@@ -5045,13 +5040,16 @@ initLCD = function () {
 	}
 }
 graphicsBlit = function () {
+
 	if (this.offscreenWidth == this.onscreenWidth && this.offscreenHeight == this.onscreenHeight) {
-		this.drawContextOnscreen.putImageData(this.canvasBuffer, this.xoffset, this.yoffset);
+		//this.drawContextOnscreen.putImageData(this.canvasBuffer, this.xoffset, this.yoffset);
+		postMessage({ image: this.canvasBuffer, i: this.xoffset, j:this.yoffset })
 	}
 	else {
-		this.drawContextOffscreen.putImageData(this.canvasBuffer, 0, 0);
-		this.drawContextOnscreen.drawImage(this.canvasOffscreen, this.xoffset, this.yoffset, this.onscreenWidth, this.onscreenHeight);
-	}
+		//this.drawContextOffscreen.putImageData(this.canvasBuffer, 0, 0);
+		//this.drawContextOnscreen.drawImage(this.canvasOffscreen, this.xoffset, this.yoffset, this.onscreenWidth, this.onscreenHeight);
+		postMessage({ image: this.canvasBuffer, i: this.xoffset, j:this.yoffset })
+   }
 }
 JoyPadEvent = function (key, down) {
 	if (down) {
@@ -5082,9 +5080,9 @@ initSound = function () {
 	console.log("INT SOUND")
 	this.audioResamplerFirstPassFactor = Math.max(Math.min(Math.floor(this.clocksPerSecond / 44100), Math.floor(0xFFFF / 0x1E0)), 1);
 	this.downSampleInputDivider = 1 / (this.audioResamplerFirstPassFactor * 0xF0);
-	if (settings[0]) {
-		this.audioHandle = new XAudioServer(2, this.clocksPerSecond / this.audioResamplerFirstPassFactor, 0, Math.max(this.baseCPUCyclesPerIteration * settings[8] / this.audioResamplerFirstPassFactor, 8192) << 1, null, settings[3], function () {
-			settings[0] = false;
+	if (this.settings[0]) {
+		this.audioHandle = new XAudioServer(2, this.clocksPerSecond / this.audioResamplerFirstPassFactor, 0, Math.max(this.baseCPUCyclesPerIteration * this.settings[8] / this.audioResamplerFirstPassFactor, 8192) << 1, null, this.settings[3], function () {
+			this.settings[0] = false;
 		});
 		this.initAudioBuffer();
 	}
@@ -5095,15 +5093,15 @@ initSound = function () {
 	}
 }
 changeVolume = function () {
-	if (settings[0] && this.audioHandle) {
-		this.audioHandle.changeVolume(settings[3]);
+	if (this.settings[0] && this.audioHandle) {
+		this.audioHandle.changeVolume(this.settings[3]);
 	}
 }
 initAudioBuffer = function () {
 	this.audioIndex = 0;
 	this.audioDestinationPosition = 0;
 	this.downsampleInput = 0;
-	this.bufferContainAmount = Math.max(this.baseCPUCyclesPerIteration * settings[7] / this.audioResamplerFirstPassFactor, 4096) << 1;
+	this.bufferContainAmount = Math.max(this.baseCPUCyclesPerIteration * this.settings[7] / this.audioResamplerFirstPassFactor, 4096) << 1;
 	this.numSamplesTotal = (this.baseCPUCyclesPerIteration / this.audioResamplerFirstPassFactor) << 1;
 	this.audioBuffer = this.getTypedArray(this.numSamplesTotal, 0, "float32");
 }
@@ -5167,7 +5165,7 @@ intializeWhiteNoise = function () {
 	this.noiseSampleTable = this.LSFR15Table;
 }
 audioUnderrunAdjustment = function () {
-	if (settings[0]) {
+	if (this.settings[0]) {
 		var underrunAmount = this.audioHandle.remainingBuffer();
 		if (typeof underrunAmount == "number") {
 			underrunAmount = this.bufferContainAmount - Math.max(underrunAmount, 0);
@@ -5322,7 +5320,7 @@ generateAudioFake = function (numSamples) {
 }
 audioJIT = function () {
 	//Audio Sample Generation Timing:
-	if (settings[0]) {
+	if (this.settings[0]) {
 		this.generateAudio(this.audioTicks);
 	}
 	else {
@@ -5597,7 +5595,7 @@ channel1OutputLevelSecondaryCache = function () {
 	this.channel1OutputLevelTrimaryCache();
 }
 channel1OutputLevelTrimaryCache = function () {
-	if (this.channel1CachedDuty[this.channel1DutyTracker] && settings[14][0]) {
+	if (this.channel1CachedDuty[this.channel1DutyTracker] && this.settings[14][0]) {
 		this.channel1currentSampleLeftTrimary = this.channel1currentSampleLeftSecondary;
 		this.channel1currentSampleRightTrimary = this.channel1currentSampleRightSecondary;
 	}
@@ -5633,7 +5631,7 @@ channel2OutputLevelSecondaryCache = function () {
 	this.channel2OutputLevelTrimaryCache();
 }
 channel2OutputLevelTrimaryCache = function () {
-	if (this.channel2CachedDuty[this.channel2DutyTracker] && settings[14][1]) {
+	if (this.channel2CachedDuty[this.channel2DutyTracker] && this.settings[14][1]) {
 		this.channel2currentSampleLeftTrimary = this.channel2currentSampleLeftSecondary;
 		this.channel2currentSampleRightTrimary = this.channel2currentSampleRightSecondary;
 	}
@@ -5653,7 +5651,7 @@ channel3OutputLevelCache = function () {
 	this.channel3OutputLevelSecondaryCache();
 }
 channel3OutputLevelSecondaryCache = function () {
-	if (this.channel3Enabled && settings[14][2]) {
+	if (this.channel3Enabled && this.settings[14][2]) {
 		this.channel3currentSampleLeftSecondary = this.channel3currentSampleLeft;
 		this.channel3currentSampleRightSecondary = this.channel3currentSampleRight;
 	}
@@ -5678,7 +5676,7 @@ channel4OutputLevelCache = function () {
 	this.channel4OutputLevelSecondaryCache();
 }
 channel4OutputLevelSecondaryCache = function () {
-	if (this.channel4Enabled && settings[14][3]) {
+	if (this.channel4Enabled && this.settings[14][3]) {
 		this.channel4currentSampleLeftSecondary = this.channel4currentSampleLeft;
 		this.channel4currentSampleRightSecondary = this.channel4currentSampleRight;
 	}
@@ -6245,15 +6243,19 @@ dispatchDraw = function () {
 	}
 }
 processDraw = function (frameBuffer) {
-	var canvasRGBALength = this.offscreenRGBCount;
-	var canvasData = this.canvasBuffer.data;
-	var bufferIndex = 0;
-	for (var canvasIndex = 0; canvasIndex < canvasRGBALength; ++canvasIndex) {
-		canvasData[canvasIndex++] = frameBuffer[bufferIndex++];
-		canvasData[canvasIndex++] = frameBuffer[bufferIndex++];
-		canvasData[canvasIndex++] = frameBuffer[bufferIndex++];
+	this.outFrameCount++;
+
+	if (this.outFrameCount % 10 === 0){
+		var canvasRGBALength = this.offscreenRGBCount;
+		var canvasData = this.canvasBuffer.data;
+		var bufferIndex = 0;
+		for (var canvasIndex = 0; canvasIndex < canvasRGBALength; ++canvasIndex) {
+			canvasData[canvasIndex++] = frameBuffer[bufferIndex++];
+			canvasData[canvasIndex++] = frameBuffer[bufferIndex++];
+			canvasData[canvasIndex++] = frameBuffer[bufferIndex++];
+		}
+		this.graphicsBlit();
 	}
-	this.graphicsBlit();
 	this.drewFrame = false;
 }
 swizzleFrameBuffer = function () {
@@ -6293,7 +6295,7 @@ resizeFrameBuffer = function () {
 compileResizeFrameBufferFunction = function () {
 	if (this.offscreenRGBCount > 0) {
 		var parentObj = this;
-		this.resizer = new Resize(160, 144, this.offscreenWidth, this.offscreenHeight, false, settings[13], false, function (buffer) {
+		this.resizer = new Resize(160, 144, this.offscreenWidth, this.offscreenHeight, false, this.settings[13], false, function (buffer) {
 			if ((buffer.length / 3 * 4) == parentObj.offscreenRGBCount) {
 				parentObj.processDraw(buffer);
 			}
@@ -6371,7 +6373,7 @@ GBCtoGBModeAdjust = function () {
 	cout("Stepping down from GBC mode.", 0);
 	this.VRAM = this.GBCMemory = this.BGCHRCurrentBank = this.BGCHRBank2 = null;
 	this.tileCache.length = 0x700;
-	if (settings[4]) {
+	if (this.settings[4]) {
 		this.gbBGColorizedPalette = this.getTypedArray(4, 0, "int32");
 		this.gbOBJColorizedPalette = this.getTypedArray(8, 0, "int32");
 		this.cachedBGPaletteConversion = this.getTypedArray(4, 0, "int32");
@@ -7954,7 +7956,7 @@ memoryReadROM = function (parentObj, address) {
 }
 memoryReadMBC = function (parentObj, address) {
 	//Switchable RAM
-	if (parentObj.MBCRAMBanksEnabled || settings[10]) {
+	if (parentObj.MBCRAMBanksEnabled || this.settings[10]) {
 		return parentObj.MBCRam[address + parentObj.currMBCRAMBankPosition];
 	}
 	//cout("Reading from disabled RAM.", 1);
@@ -7962,7 +7964,7 @@ memoryReadMBC = function (parentObj, address) {
 }
 memoryReadMBC7 = function (parentObj, address) {
 	//Switchable RAM
-	if (parentObj.MBCRAMBanksEnabled || settings[10]) {
+	if (parentObj.MBCRAMBanksEnabled || this.settings[10]) {
 		switch (address) {
 			case 0xA000:
 			case 0xA060:
@@ -7992,7 +7994,7 @@ memoryReadMBC7 = function (parentObj, address) {
 }
 memoryReadMBC3 = function (parentObj, address) {
 	//Switchable RAM
-	if (parentObj.MBCRAMBanksEnabled || settings[10]) {
+	if (parentObj.MBCRAMBanksEnabled || this.settings[10]) {
 		switch (parentObj.currMBCRAMBank) {
 			case 0x00:
 			case 0x01:
@@ -8320,12 +8322,12 @@ memoryHighWriteNormal = function (parentObj, address, data) {
 	parentObj.memory[0xFF00 | address] = data;
 }
 memoryWriteMBCRAM = function (parentObj, address, data) {
-	if (parentObj.MBCRAMBanksEnabled || settings[10]) {
+	if (parentObj.MBCRAMBanksEnabled || this.settings[10]) {
 		parentObj.MBCRam[address + parentObj.currMBCRAMBankPosition] = data;
 	}
 }
 memoryWriteMBC3RAM = function (parentObj, address, data) {
-	if (parentObj.MBCRAMBanksEnabled || settings[10]) {
+	if (parentObj.MBCRAMBanksEnabled || this.settings[10]) {
 		switch (parentObj.currMBCRAMBank) {
 			case 0x00:
 			case 0x01:
@@ -9449,7 +9451,7 @@ recompileBootIOWriteHandling = function () {
 //Helper Functions
 toTypedArray = function (baseArray, memtype) {
 	try {
-		if (settings[5]) {
+		if (this.settings[5]) {
 			return baseArray;
 		}
 		if (!baseArray || !baseArray.length) {
@@ -9497,7 +9499,7 @@ fromTypedArray = function (baseArray) {
 }
 getTypedArray = function (length, defaultValue, numberType) {
 	try {
-		if (settings[5]) {
+		if (this.settings[5]) {
 			throw(new Error("Settings forced typed arrays to be disabled."));
 		}
 		switch (numberType) {

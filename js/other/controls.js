@@ -40,7 +40,7 @@ function bindButton(el, code) {
   el.addEventListener("touchend", function(e) {
     e.preventDefault();
     e.stopPropagation();
-    initSound();
+    //initSound();
     e.currentTarget.className = e.currentTarget.className.replace(
       / btnPressed/,
       ""
@@ -103,7 +103,7 @@ function bindDpad(el) {
   el.addEventListener("touchend", function(e) {
     e.preventDefault();
     e.stopPropagation();
-    initSound();
+    //initSound();
     GameBoyKeyUp("left");
     GameBoyKeyUp("right");
     GameBoyKeyUp("up");
@@ -113,7 +113,7 @@ function bindDpad(el) {
 
 function bindKeyboard() {
   window.onkeydown = function(e) {
-    initSound();
+    //initSound();
     if (isTouchEnabled) {
       controller.style.display = "none";
       isTouchEnabled = false;
@@ -201,4 +201,4 @@ if (isTouchEnabled) {
 } else {
   controller.style.display = "none";
 }
-bindKeyboard();
+//bindKeyboard();

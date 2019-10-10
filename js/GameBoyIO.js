@@ -2,16 +2,20 @@
 class GameBoyIO {
 	gameboy = null;						//GameBoyCore object.
 	gbRunInterval = null;				//GameBoyCore Timer
+	settings = []
 	
-	
-	start(canvas, ROM, xoffset, yoffset) {
+	start(canvas, ROM, xoffset, yoffset, settings) {
+		this.settings = settings;
 		this.clearLastEmulation();
 		this.autoSave();	//If we are about to load a new game, then save the last one...
-		this.gameboy = new GameBoyCoreClass().GameBoyCore(canvas, ROM, this, xoffset, yoffset);
+		this.gameboy = new GameBoyCoreClass().GameBoyCore(canvas, ROM, this, xoffset, yoffset, settings);
 		this.gameboy.openMBC = this.openSRAM;
 		this.gameboy.openRTC = this.openRTC;
 		this.gameboy.start();
 		this.run();
+	}
+	step(){
+		this.gameboy.run();
 	}
 	run() {
 		if (this.GameBoyEmulatorInitialized()) {
@@ -21,11 +25,11 @@ class GameBoyIO {
 				var dateObj = new Date();
 				this.gameboy.firstIteration = dateObj.getTime();
 				this.gameboy.iterations = 0;
-				this.gbRunInterval = setInterval(() => {
-					if (!document.hidden && !document.msHidden && !document.mozHidden && !document.webkitHidden) {
+				//this.gbRunInterval = setInterval(() => {
+					//if (!document.hidden && !document.msHidden && !document.mozHidden && !document.webkitHidden) {
 						this.gameboy.run();
-					}
-				}, settings[6]);
+					//}
+				//}, this.settings[6]);
 			}
 			else {
 				cout("The GameBoy core is already running.", 1);
@@ -349,29 +353,29 @@ class GameBoyIO {
 		return ((this.gameboy.stopEmulator & 2) == 0);
 	}
 	GameBoyKeyDown(key) {
-		if (this.GameBoyEmulatorInitialized() && GameBoyEmulatorPlaying()) {
-			GameBoyJoyPadEvent(matchKey(key), true);
+		if (this.GameBoyEmulatorInitialized() && this.GameBoyEmulatorPlaying()) {
+			this.GameBoyJoyPadEvent(this.matchKey(key), true);
 		}
 	}
 	GameBoyJoyPadEvent(keycode, down) {
-		if (this.GameBoyEmulatorInitialized() && GameBoyEmulatorPlaying()) {
+		if (this.GameBoyEmulatorInitialized() && this.GameBoyEmulatorPlaying()) {
 			if (keycode >= 0 && keycode < 8) {
-				gameboy.JoyPadEvent(keycode, down);
+				this.gameboy.JoyPadEvent(keycode, down);
 			}
 		}
 	}
 	GameBoyKeyUp(key) {
-		if (this.GameBoyEmulatorInitialized() && GameBoyEmulatorPlaying()) {
-			GameBoyJoyPadEvent(matchKey(key), false);
+		if (this.GameBoyEmulatorInitialized() && this.GameBoyEmulatorPlaying()) {
+			this.GameBoyJoyPadEvent(this.matchKey(key), false);
 		}
 	}
 	GameBoyGyroSignalHandler(e) {
-		if (this.GameBoyEmulatorInitialized() && GameBoyEmulatorPlaying()) {
+		if (this.GameBoyEmulatorInitialized() && this.GameBoyEmulatorPlaying()) {
 			if (e.gamma || e.beta) {
-				gameboy.GyroEvent(e.gamma * Math.PI / 180, e.beta * Math.PI / 180);
+				this.gameboy.GyroEvent(e.gamma * Math.PI / 180, e.beta * Math.PI / 180);
 			}
 			else {
-				gameboy.GyroEvent(e.x, e.y);
+				this.gameboy.GyroEvent(e.x, e.y);
 			}
 			try {
 				e.preventDefault();
@@ -382,24 +386,118 @@ class GameBoyIO {
 	//The emulator will call this to sort out the canvas properties for (re)initialization.
 	initNewCanvas() {
 		if (this.GameBoyEmulatorInitialized()) {
-			this.gameboy.canvas.width = this.gameboy.canvas.clientWidth;	
-			this.gameboy.canvas.height = this.gameboy.canvas.clientHeight;
+			this.gameboy.canvas.width = 64;	
+			this.gameboy.canvas.height = 64;
 		}
 	}
 	//Call this when resizing the canvas:
 	initNewCanvasSize() {
 		if (this.GameBoyEmulatorInitialized()) {
-			if (!settings[12]) {
-				if (gameboy.onscreenWidth != 160 || gameboy.onscreenHeight != 144) {
-					gameboy.initLCD();
+			if (!this.settings[12]) {
+				if (this.gameboy.onscreenWidth != 64 || this.gameboy.onscreenHeight != 64) {
+					this.gameboy.initLCD();
 				}
 			}
 			else {
-				if (gameboy.onscreenWidth != gameboy.canvas.clientWidth || gameboy.onscreenHeight != gameboy.canvas.clientHeight) {
-					gameboy.initLCD();
-				}
+				// if (this.gameboy.onscreenWidth != this.gameboy.canvas.clientWidth || this.gameboy.onscreenHeight != this.gameboy.canvas.clientHeight) {
+				// 	this.gameboy.initLCD();
+				// }
 			}
 		}
 	}
+	bindKeyboard(){
+		const io = this;
+		const JS_KEY_UP = 38;
+		const JS_KEY_LEFT = 37;
+		const JS_KEY_RIGHT = 39;
+		const JS_KEY_DOWN = 40;
+		const JS_KEY_ENTER = 13;
+		const JS_KEY_ALT = 18;
+		const JS_KEY_CTRL = 17;
+		const JS_KEY_SHIFT = 16;
+		
+		const JS_KEY_W = 87;
+		const JS_KEY_A = 65;
+		const JS_KEY_S = 83;
+		const JS_KEY_D = 68;
+		const JS_KEY_J = 74;
+		const JS_KEY_K = 75;
+		
+		const JS_KEY_Z = 90;
+		const JS_KEY_X = 88;
+		window.onkeydown = (e) => {
+		  if (
+			e.keyCode !== JS_KEY_CTRL &&
+			e.keyCode !== JS_KEY_ALT &&
+			(e.altKey || e.ctrlKey || e.metaKey || e.shiftKey)
+		  ) {
+			return;
+		  }
+		  if (e.keyCode === JS_KEY_LEFT || e.keyCode === JS_KEY_A) {
+			io.GameBoyKeyDown("left");
+		  } else if (e.keyCode === JS_KEY_RIGHT || e.keyCode === JS_KEY_D) {
+			io.GameBoyKeyDown("right");
+		  } else if (e.keyCode === JS_KEY_UP || e.keyCode === JS_KEY_W) {
+			io.GameBoyKeyDown("up");
+		  } else if (e.keyCode === JS_KEY_DOWN || e.keyCode === JS_KEY_S) {
+			io.GameBoyKeyDown("down");
+		  } else if (e.keyCode === JS_KEY_ENTER) {
+			io.GameBoyKeyDown("start");
+		  } else if (
+			e.keyCode === JS_KEY_ALT ||
+			e.keyCode === JS_KEY_Z ||
+			e.keyCode === JS_KEY_J
+		  ) {
+			io.GameBoyKeyDown("a");
+		  } else if (
+			e.keyCode === JS_KEY_CTRL ||
+			e.keyCode === JS_KEY_K ||
+			e.keyCode === JS_KEY_X
+		  ) {
+			io.GameBoyKeyDown("b");
+		  } else if (e.keyCode === JS_KEY_SHIFT) {
+			io.GameBoyKeyDown("select");
+		  }
+		  e.preventDefault();
+		};
+	  
+		window.onkeyup = (e) => {
+		  if (e.key === "Dead") {
+			// Ipad keyboard fix :-/
+			// Doesn't register which key was released, so release all of them
+			["right", "left", "up", "down", "a", "b", "select", "start"].forEach(
+			  key => {
+				io.GameBoyKeyUp(key);
+			  }
+			);
+		  }
+		  if (e.keyCode === JS_KEY_LEFT || e.keyCode === JS_KEY_A) {
+			io.GameBoyKeyUp("left");
+		  } else if (e.keyCode === JS_KEY_RIGHT || e.keyCode === JS_KEY_D) {
+			io.GameBoyKeyUp("right");
+		  } else if (e.keyCode === JS_KEY_UP || e.keyCode === JS_KEY_W) {
+			io.GameBoyKeyUp("up");
+		  } else if (e.keyCode === JS_KEY_DOWN || e.keyCode === JS_KEY_S) {
+			io.GameBoyKeyUp("down");
+		  } else if (e.keyCode === JS_KEY_ENTER) {
+			io.GameBoyKeyUp("start");
+		  } else if (
+			e.keyCode === JS_KEY_ALT ||
+			e.keyCode === JS_KEY_Z ||
+			e.keyCode === JS_KEY_J
+		  ) {
+			io.GameBoyKeyUp("a");
+		  } else if (
+			e.keyCode === JS_KEY_CTRL ||
+			e.keyCode === JS_KEY_K ||
+			e.keyCode === JS_KEY_X
+		  ) {
+			io.GameBoyKeyUp("b");
+		  } else if (e.keyCode === JS_KEY_SHIFT) {
+			io.GameBoyKeyUp("select");
+		  }
+		  e.preventDefault();
+		};
+	  }
 
 }
