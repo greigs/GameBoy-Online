@@ -1,19 +1,26 @@
 
+const columnCount = 6
+const rowCount = 1
+const canvasHeightIndividualGame = 144
+const canvasWidthIndividualGame = 160
+const canvasHeightTotal = canvasHeightIndividualGame * rowCount
+const canvasWidthTotal = canvasWidthIndividualGame * columnCount
 let canvas = document.getElementById("canvas")
+canvas.width = "" + canvasWidthTotal
+canvas.height = "" + canvasHeightTotal
 var ctx = canvas.getContext('2d')
 const offScreen = new OffscreenCanvas(160, 144)
 const offScreenCtx = offScreen.getContext("2d")
 let workers = []
-const columnCount = 6
-const rowCount = 1
+
 for (let i=0; i<columnCount; i++){
 	for (let j=0; j<rowCount; j++){
 		const worker = new Worker('js/worker.js')
 		workers.push(worker)
-		worker.postMessage({ i: i, j: j });
+		worker.postMessage({ i: i, j: j, offsetDistanceX : canvasWidthIndividualGame, offsetDistanceY : canvasHeightIndividualGame});
 		worker.onmessage = function (e) {
 			offScreenCtx.putImageData(e.data.image, 0, 0);
-			ctx.drawImage(offScreen, e.data.i, e.data.j, 64, 64);
+			ctx.drawImage(offScreen, e.data.i, e.data.j, canvasWidthIndividualGame, canvasHeightIndividualGame);
 		}
 	}
 }
@@ -30,7 +37,7 @@ window.onkeyup = (e) =>{
 	active.postMessage({keyUp: {keyCode: e.keyCode}})
 }
 
-const runAll = false
+const runAll = true
 const runAllAsBackground = false
 const frameDivisionAll = 5
 const frameDivisionSingle = 1

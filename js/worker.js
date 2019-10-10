@@ -8,7 +8,7 @@ importScripts("other/resize.js")
 importScripts("GameBoyCore.js")
 importScripts("GameBoyIO.js");
 let gb
-const startgb = (canvas, i,j) => {
+const startgb = (canvas, i,j, offsetDistanceX, offsetDistanceY) => {
 	gb = new GameBoyIO()
 	//gb.bindKeyboard();
 
@@ -30,7 +30,7 @@ const startgb = (canvas, i,j) => {
 		[true, true, true, true]            //User controlled channel enables.
 	];
 	
-    gb.start(canvas, base64_decode(i % 2 == 0 ? zeldaRomData : marioRomData), i * 64, j * 64, settings)
+    gb.start(canvas, base64_decode(i % 2 == 0 ? zeldaRomData : marioRomData), i * offsetDistanceX, j * offsetDistanceY, settings)
 }
 
 self.onmessage = function(e) {
@@ -45,6 +45,6 @@ self.onmessage = function(e) {
 		gb.keyUp(e.data.keyUp)
 	}
 	else{
-        startgb(new OffscreenCanvas(64,64),e.data.i,e.data.j)   
+        startgb(new OffscreenCanvas(e.data.offsetDistanceX,e.data.offsetDistanceY),e.data.i,e.data.j, e.data.offsetDistanceX, e.data.offsetDistanceY)   
     } 
 };

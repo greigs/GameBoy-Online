@@ -1899,7 +1899,7 @@ OPCODE = [
 	//#0xD3:
 	function (parentObj) {
 		cout("Illegal op code 0xD3 called, pausing emulation.", 2);
-		pause();
+		this.pause();
 	},
 	//CALL !FC, nn
 	//#0xD4:
@@ -1978,7 +1978,7 @@ OPCODE = [
 	//#0xDB:
 	function (parentObj) {
 		cout("Illegal op code 0xDB called, pausing emulation.", 2);
-		pause();
+		this.pause();
 	},
 	//CALL FC, nn
 	//#0xDC:
@@ -2001,7 +2001,7 @@ OPCODE = [
 	//#0xDD:
 	function (parentObj) {
 		cout("Illegal op code 0xDD called, pausing emulation.", 2);
-		pause();
+		this.pause();
 	},
 	//SBC A, n
 	//#0xDE:
@@ -2045,13 +2045,13 @@ OPCODE = [
 	//#0xE3:
 	function (parentObj) {
 		cout("Illegal op code 0xE3 called, pausing emulation.", 2);
-		pause();
+		this.pause();
 	},
 	//0xE4 - Illegal
 	//#0xE4:
 	function (parentObj) {
 		cout("Illegal op code 0xE4 called, pausing emulation.", 2);
-		pause();
+		this.pause();
 	},
 	//PUSH HL
 	//#0xE5:
@@ -2106,19 +2106,19 @@ OPCODE = [
 	//#0xEB:
 	function (parentObj) {
 		cout("Illegal op code 0xEB called, pausing emulation.", 2);
-		pause();
+		this.pause();
 	},
 	//0xEC - Illegal
 	//#0xEC:
 	function (parentObj) {
 		cout("Illegal op code 0xEC called, pausing emulation.", 2);
-		pause();
+		this.pause();
 	},
 	//0xED - Illegal
 	//#0xED:
 	function (parentObj) {
 		cout("Illegal op code 0xED called, pausing emulation.", 2);
-		pause();
+		this.pause();
 	},
 	//XOR n
 	//#0xEE:
@@ -2169,7 +2169,7 @@ OPCODE = [
 	//#0xF4:
 	function (parentObj) {
 		cout("Illegal op code 0xF4 called, pausing emulation.", 2);
-		pause();
+		this.pause();
 	},
 	//PUSH AF
 	//#0xF5:
@@ -2228,13 +2228,13 @@ OPCODE = [
 	//#0xFC:
 	function (parentObj) {
 		cout("Illegal op code 0xFC called, pausing emulation.", 2);
-		pause();
+		this.pause();
 	},
 	//0xFD - Illegal
 	//#0xFD:
 	function (parentObj) {
 		cout("Illegal op code 0xFD called, pausing emulation.", 2);
-		pause();
+		this.pause();
 	},
 	//CP n
 	//#0xFE:
@@ -4834,7 +4834,7 @@ interpretCartridge = function () {
 		default:
 			MBCType = "Unknown";
 			cout("Cartridge type is unknown.", 2);
-			pause();
+			this.pause();
 	}
 	cout("Cartridge Type: " + MBCType + ".", 0);
 	// ROM and RAM banks
@@ -5744,7 +5744,7 @@ run = function (produceFrame) {
 		}
 		else {		//We can only get here if there was an internal error, but the loop was restarted.
 			cout("Iterator restarted a faulted core.", 2);
-			pause();
+			this.pause();
 		}
 	}
 }
