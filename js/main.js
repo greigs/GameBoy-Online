@@ -1,14 +1,15 @@
 
 const columnCount = 6
 const rowCount = 1
-const canvasHeightIndividualGame = 144
-const canvasWidthIndividualGame = 160
+const canvasHeightIndividualGame = 144 * 2
+const canvasWidthIndividualGame = 160 * 2
 const canvasHeightTotal = canvasHeightIndividualGame * rowCount
 const canvasWidthTotal = canvasWidthIndividualGame * columnCount
 let canvas = document.getElementById("canvas")
 canvas.width = "" + canvasWidthTotal
 canvas.height = "" + canvasHeightTotal
 var ctx = canvas.getContext('2d')
+ctx.imageSmoothingEnabled = false;
 const offScreen = new OffscreenCanvas(160, 144)
 const offScreenCtx = offScreen.getContext("2d")
 let workers = []
