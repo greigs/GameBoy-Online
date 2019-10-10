@@ -14,8 +14,8 @@ class GameBoyIO {
 		this.gameboy.start();
 		this.run();
 	}
-	step(){
-		this.gameboy.run();
+	step(produceFrame){
+		this.gameboy.run(produceFrame);
 	}
 	run() {
 		if (this.GameBoyEmulatorInitialized()) {
@@ -27,7 +27,7 @@ class GameBoyIO {
 				this.gameboy.iterations = 0;
 				//this.gbRunInterval = setInterval(() => {
 					//if (!document.hidden && !document.msHidden && !document.mozHidden && !document.webkitHidden) {
-						this.gameboy.run();
+						this.gameboy.run(true);
 					//}
 				//}, this.settings[6]);
 			}

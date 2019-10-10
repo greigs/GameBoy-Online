@@ -36,7 +36,7 @@ const startgb = (canvas, i,j) => {
 self.onmessage = function(e) {
 
     if (e.data.step){
-        gb.step()
+        gb.step(e.data.produceFrame)
     }
     else{
         startgb(new OffscreenCanvas(64,64),e.data.i,e.data.j)   

@@ -48,13 +48,16 @@ for (let i=0; i<6; i++){
 		}
 	}
 }
-
+let globalFrameCount = 0
 setInterval(async () => 
 {
+	  globalFrameCount++;
 	  var i = 0;
       workers.forEach(async function(worker){
-		  i+= 20
-    	setTimeout(() => worker.postMessage({step: true}), i)
+		  i++;
+		  worker.postMessage({step: true, produceFrame: globalFrameCount % 5 === 0})
+		//  i+= 20
+    	//setTimeout(() => worker.postMessage({step: true, produceFrame: false}), i)
 		
 	  });
 },8)

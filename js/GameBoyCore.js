@@ -4417,7 +4417,7 @@ start = function () {
 	this.ROMLoad();		//Load the ROM into memory and get cartridge information from it.
 	this.initLCD();		//Initialize the graphics.
 	//this.initSound();	//Sound object initialization.
-	this.run();			//Start the emulation.
+	this.run(true);			//Start the emulation.
 }
 initMemory = function () {
 	//Initialize the RAM:
@@ -5708,7 +5708,7 @@ channel4UpdateCache = function () {
 	this.cachedChannel4Sample = this.noiseSampleTable[this.channel4currentVolume | this.channel4lastSampleLookup];
 	this.channel4OutputLevelCache();
 }
-run = function () {
+run = function (produceFrame) {
 	//The preprocessing before the actual iteration loop:
 	if ((this.stopEmulator & 2) == 0) {
 		if ((this.stopEmulator & 1) == 1) {
@@ -5731,7 +5731,9 @@ run = function () {
 					}
 				}
 				//Request the graphics target to be updated:
-				this.requestDraw();
+				if (produceFrame){
+				  this.requestDraw();
+				}
 			}
 			else {
 				this.audioUnderrunAdjustment();
@@ -6244,18 +6246,16 @@ dispatchDraw = function () {
 }
 processDraw = function (frameBuffer) {
 	this.outFrameCount++;
-
-	if (this.outFrameCount % 2 === 0){
-		var canvasRGBALength = this.offscreenRGBCount;
-		var canvasData = this.canvasBuffer.data;
-		var bufferIndex = 0;
-		for (var canvasIndex = 0; canvasIndex < canvasRGBALength; ++canvasIndex) {
-			canvasData[canvasIndex++] = frameBuffer[bufferIndex++];
-			canvasData[canvasIndex++] = frameBuffer[bufferIndex++];
-			canvasData[canvasIndex++] = frameBuffer[bufferIndex++];
-		}
-		this.graphicsBlit();
+	var canvasRGBALength = this.offscreenRGBCount;
+	var canvasData = this.canvasBuffer.data;
+	var bufferIndex = 0;
+	for (var canvasIndex = 0; canvasIndex < canvasRGBALength; ++canvasIndex) {
+		canvasData[canvasIndex++] = frameBuffer[bufferIndex++];
+		canvasData[canvasIndex++] = frameBuffer[bufferIndex++];
+		canvasData[canvasIndex++] = frameBuffer[bufferIndex++];
 	}
+	this.graphicsBlit();
+	
 	this.drewFrame = false;
 }
 swizzleFrameBuffer = function () {
