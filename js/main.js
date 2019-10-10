@@ -36,8 +36,8 @@ let gbs = []
 const offScreen = new OffscreenCanvas(160, 144)
 const offScreenCtx = offScreen.getContext("2d")
 let workers = []
-for (let i=0; i<6; i++){
-	for (let j=0; j<1; j++){
+for (let i=0; i<16; i++){
+	for (let j=0; j<8; j++){
 	    
 		const worker = new Worker('js/worker.js')
 		workers.push(worker)
@@ -48,18 +48,27 @@ for (let i=0; i<6; i++){
 		}
 	}
 }
-let globalFrameCount = 0
+
+var workerCount = 0;
+workers.forEach(async function(worker){
+	for (var i=0; i<workerCount; i++ ){
+	   worker.postMessage({step: true, produceFrame: false})
+	}
+	workerCount++
+});
+
+setTimeout(() => {
+
+	let globalFrameCount = 0
 setInterval(async () => 
 {
 	  globalFrameCount++;
-	  var i = 0;
       workers.forEach(async function(worker){
-		  i++;
 		  worker.postMessage({step: true, produceFrame: globalFrameCount % 5 === 0})
-		//  i+= 20
-    	//setTimeout(() => worker.postMessage({step: true, produceFrame: false}), i)
-		
 	  });
 },8)
+}, 10000)
+
+
 
 

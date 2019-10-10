@@ -30,7 +30,7 @@ const startgb = (canvas, i,j) => {
 		[true, true, true, true]            //User controlled channel enables.
 	];
 	
-    gb.start(canvas, base64_decode(i % 2 == 0 ? zeldaRomData : marioRomData), i * 64, j * 64, settings)
+    gb.start(canvas, base64_decode(marioRomData), i * 64, j * 64, settings)
 }
 
 self.onmessage = function(e) {
