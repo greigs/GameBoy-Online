@@ -4,9 +4,9 @@ var ctx = canvas.getContext('2d')
 const offScreen = new OffscreenCanvas(160, 144)
 const offScreenCtx = offScreen.getContext("2d")
 let workers = []
+
 for (let i=0; i<6; i++){
 	for (let j=0; j<1; j++){
-	    
 		const worker = new Worker('js/worker.js')
 		workers.push(worker)
 		worker.postMessage({ i: i, j: j });
@@ -16,31 +16,38 @@ for (let i=0; i<6; i++){
 		}
 	}
 }
+
+let active = workers[1]
+
 let globalFrameCount = 0
 window.onkeydown = (e) =>{
-	workers.forEach(async function(worker){
-		worker.postMessage({keyDown: {keyCode: e.keyCode}})
-	})
+	active.postMessage({keyDown: {keyCode: e.keyCode}})
 }
 
 window.onkeyup = (e) =>{
-	workers.forEach(async function(worker){
-		worker.postMessage({keyUp: {keyCode: e.keyCode}})
-	})
+	active.postMessage({keyUp: {keyCode: e.keyCode}})
 }
 
+const runAll = false
+const runAllAsBackground = false
+const frameDivisionAll = 5
+const frameDivisionSingle = 1
+const frameDivisionBackground = 10
 
 setInterval(async () => 
 {
 	  globalFrameCount++;
-	  var i = 0;
-      workers.forEach(async function(worker){
-		  i++;
-		  worker.postMessage({step: true, produceFrame: globalFrameCount % 5 === 0})
-		//  i+= 20
-    	//setTimeout(() => worker.postMessage({step: true, produceFrame: false}), i)
-		
-	  });
+	  if (runAll){
+		workers.forEach(async function(worker){
+			worker.postMessage({step: true, produceFrame: globalFrameCount % frameDivisionAll === 0})		
+		});
+	  } else if (runAllAsBackground){
+		workers.forEach(async function(worker){			
+			worker.postMessage({step: true, produceFrame: globalFrameCount % (active === worker ? frameDivisionSingle : frameDivisionBackground) === 0})		
+		})
+	  } else{
+		active.postMessage({step: true, produceFrame: globalFrameCount % frameDivisionSingle === 0})
+	  }
 },8)
 
 
