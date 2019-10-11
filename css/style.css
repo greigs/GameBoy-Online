@@ -9,7 +9,7 @@ body {
 }
 
 canvas{
-  background-color: white;
+  background-color: black;
   image-rendering: pixelated;
 }
 
