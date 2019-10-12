@@ -16,112 +16,132 @@ ctx.imageSmoothingEnabled = false;
 const offScreen = new OffscreenCanvas(160, 144)
 const offScreenCtx = offScreen.getContext("2d")
 
-let workers = []
-const rom = getMarioRomData()
-for (let i=0; i<columnCount; i++){
-	for (let j=0; j<rowCount; j++){
-		const worker = new Worker('js/worker.js')
-		workers[(columnCount * j) + i] = worker
-		
-		worker.onmessage = function (e) {
-			offScreenCtx.putImageData(e.data.image, 0, 0);	
-			let ia =  (e.data.i / canvasWidthIndividualGame)
-			let x = (ia * canvasWidthIndividualGame) + (ia * borderSize) + borderSize
-			let ja =  (e.data.j / canvasHeightIndividualGame)
-			let y = (ja * canvasHeightIndividualGame) + (ja * borderSize) + borderSize	
-			ctx.drawImage(offScreen, x, y, canvasWidthIndividualGame, canvasHeightIndividualGame);
+const getRomData2 = async () => {
+	const romData = await fetch('test.html')
+	return await romData.arrayBuffer()
+}
+const launcher = async () => {
+	let workers = []
+	for (let i = 0; i < columnCount; i++) {
+		for (let j = 0; j < rowCount; j++) {
+			const worker = new Worker('js/worker.js')
+			workers[(columnCount * j) + i] = worker
+
+			worker.onmessage = function (e) {
+				offScreenCtx.putImageData(e.data.image, 0, 0);
+				let ia = (e.data.i / canvasWidthIndividualGame)
+				let x = (ia * canvasWidthIndividualGame) + (ia * borderSize) + borderSize
+				let ja = (e.data.j / canvasHeightIndividualGame)
+				let y = (ja * canvasHeightIndividualGame) + (ja * borderSize) + borderSize
+				ctx.drawImage(offScreen, x, y, canvasWidthIndividualGame, canvasHeightIndividualGame);
+			}
+
 		}
-		worker.postMessage({rom: rom, i: i, j: j, offsetDistanceX : canvasWidthIndividualGame, offsetDistanceY : canvasHeightIndividualGame});
-		
 	}
-}
 
-let activeIndex = 0
-let activeFrame = -1
-let active = workers[activeIndex]
+	let activeIndex = 0
+	let activeFrame = -1
+	let active = workers[activeIndex]
 
-let globalFrameCount = 0
-window.onkeydown = (e) =>{
-	active.postMessage({keyDown: {keyCode: e.keyCode}})
-}
-
-window.onkeyup = (e) =>{
-	active.postMessage({keyUp: {keyCode: e.keyCode}})
-}
-
-const runAll = true
-const runAllAsBackground = false
-const frameDivisionAll = 5
-const frameDivisionSingle = 1
-const frameDivisionBackground = 10
-const tickInverval = 8
-const changeWorkerInterval = 3000
-let initialized = false
-setInterval(async () => 
-{
-	if (!initialized){
-		workers.forEach(async function(worker, index){
-			
-			let j =  (Math.floor(index / columnCount))
-			let i =  (index % columnCount)
-			worker.postMessage({init: true, i:i * canvasWidthIndividualGame,j:j * canvasHeightIndividualGame, offsetDistanceX : canvasWidthIndividualGame, offsetDistanceY : canvasHeightIndividualGame});
-		})
-		initialized = true
-		return;
+	let globalFrameCount = 0
+	window.onkeydown = (e) => {
+		active.postMessage({ keyDown: { keyCode: e.keyCode } })
 	}
-	globalFrameCount++;
-	if (runAll){
-	workers.forEach(async function(worker){
-		worker.postMessage({step: true, produceFrame: globalFrameCount % frameDivisionAll === 0})		
-	});
-	} else if (runAllAsBackground){
-	workers.forEach(async function(worker){			
-		worker.postMessage({step: true, produceFrame: globalFrameCount % (active === worker ? frameDivisionSingle : frameDivisionBackground) === 0})		
+
+	window.onkeyup = (e) => {
+		active.postMessage({ keyUp: { keyCode: e.keyCode } })
+	}
+
+	const runAll = true
+	const runAllAsBackground = false
+	const frameDivisionAll = 5
+	const frameDivisionSingle = 1
+	const frameDivisionBackground = 10
+	const tickInverval = 8
+	const changeWorkerInterval = 3000
+	workers.forEach(async function (worker, index) {
+
+		let j = (Math.floor(index / columnCount))
+		let i = (index % columnCount)
+		worker.postMessage({
+			init: true,
+			i: i * canvasWidthIndividualGame,
+			j: j * canvasHeightIndividualGame,
+			offsetDistanceX: canvasWidthIndividualGame,
+			offsetDistanceY: canvasHeightIndividualGame
+		});
 	})
-	} else{
-		active.postMessage({step: true, produceFrame: globalFrameCount % frameDivisionSingle === 0})
-	}
-},tickInverval)
 
-const updateActiveGame = (newIndex) => {
-	activeIndex = newIndex
-	active = workers[newIndex]
-	let ja =  (Math.floor(activeIndex / columnCount))
-	let ia =  (activeIndex % columnCount)
-	let x = (ia * canvasWidthIndividualGame) + (ia * borderSize) + borderSize
-	
-	let y = (ja * canvasHeightIndividualGame) + (ja * borderSize) + borderSize
-  
-	ctx.lineWidth = borderSize * 2
-	// disable previous active frame first
-	if (activeFrame > -1){
+	const updateActiveGame = (newIndex) => {
+		activeIndex = newIndex
+		active = workers[newIndex]
+		let ja = (Math.floor(activeIndex / columnCount))
+		let ia = (activeIndex % columnCount)
+		let x = (ia * canvasWidthIndividualGame) + (ia * borderSize) + borderSize
 
-		let pj = Math.floor(activeFrame / columnCount)
-		let pi = activeFrame % columnCount 		
-		let px = (pi * canvasWidthIndividualGame) + (pi * borderSize) + borderSize
-		let py = (pj * canvasHeightIndividualGame) + (pj * borderSize) + borderSize
-		ctx.strokeStyle = 'black';
+		let y = (ja * canvasHeightIndividualGame) + (ja * borderSize) + borderSize
+
+		ctx.lineWidth = borderSize * 2
+		// disable previous active frame first
+		if (activeFrame > -1) {
+
+			let pj = Math.floor(activeFrame / columnCount)
+			let pi = activeFrame % columnCount
+			let px = (pi * canvasWidthIndividualGame) + (pi * borderSize) + borderSize
+			let py = (pj * canvasHeightIndividualGame) + (pj * borderSize) + borderSize
+			ctx.strokeStyle = 'black';
+			ctx.beginPath();
+			ctx.rect(px, py, canvasWidthIndividualGame, canvasHeightIndividualGame);
+			ctx.stroke();
+		}
+
+		ctx.strokeStyle = 'lime';
 		ctx.beginPath();
-		ctx.rect(px, py, canvasWidthIndividualGame, canvasHeightIndividualGame);
+		ctx.rect(x, y, canvasWidthIndividualGame, canvasHeightIndividualGame);
 		ctx.stroke();
+
+		activeFrame = activeIndex
 	}
-	
-	ctx.strokeStyle = 'lime';
-	ctx.beginPath();
-	ctx.rect(x, y, canvasWidthIndividualGame, canvasHeightIndividualGame);
-	ctx.stroke();
-				
-	activeFrame = activeIndex
+
+	setInterval(() => {
+		const oldIndex = activeIndex
+		let newIndex = oldIndex + 1
+		if (newIndex === (columnCount * rowCount)) {
+			newIndex = 0
+		}
+		console.log(newIndex)
+		updateActiveGame(newIndex)
+	}
+		, changeWorkerInterval)
+
+	const rom = await getRomData2()
+	const romValid = false
+	if (romValid) {
+		for (let i = 0; i < columnCount; i++) {
+			for (let j = 0; j < rowCount; j++) {
+				worker = workers[(columnCount * j) + i]
+				worker.postMessage({ rom: rom, i: i, j: j, offsetDistanceX: canvasWidthIndividualGame, offsetDistanceY: canvasHeightIndividualGame });
+			}
+		}
+
+
+		setInterval(async () => {
+			globalFrameCount++;
+			if (runAll) {
+				workers.forEach(async function (worker) {
+					worker.postMessage({ step: true, produceFrame: globalFrameCount % frameDivisionAll === 0 })
+				});
+			} else if (runAllAsBackground) {
+				workers.forEach(async function (worker) {
+					worker.postMessage({ step: true, produceFrame: globalFrameCount % (active === worker ? frameDivisionSingle : frameDivisionBackground) === 0 })
+				})
+			} else {
+				active.postMessage({ step: true, produceFrame: globalFrameCount % frameDivisionSingle === 0 })
+			}
+		}, tickInverval)
+	}
+
+	updateActiveGame(0)
 }
 
-setInterval(() => {	
-	const oldIndex = activeIndex
-	let newIndex = oldIndex + 1
-	if (newIndex === (columnCount * rowCount)){
-		newIndex = 0
-	}
-	console.log(newIndex)
-	updateActiveGame(newIndex)
-  }	
-, changeWorkerInterval)
-updateActiveGame(0)
+launcher()
