@@ -17,11 +17,12 @@ const offScreen = new OffscreenCanvas(160, 144)
 const offScreenCtx = offScreen.getContext("2d")
 
 let workers = []
-
+const rom = getMarioRomData()
 for (let i=0; i<columnCount; i++){
 	for (let j=0; j<rowCount; j++){
 		const worker = new Worker('js/worker.js')
 		workers[(columnCount * j) + i] = worker
+		
 		worker.onmessage = function (e) {
 			offScreenCtx.putImageData(e.data.image, 0, 0);	
 			let ia =  (e.data.i / canvasWidthIndividualGame)
@@ -30,7 +31,7 @@ for (let i=0; i<columnCount; i++){
 			let y = (ja * canvasHeightIndividualGame) + (ja * borderSize) + borderSize	
 			ctx.drawImage(offScreen, x, y, canvasWidthIndividualGame, canvasHeightIndividualGame);
 		}
-		worker.postMessage({ i: i, j: j, offsetDistanceX : canvasWidthIndividualGame, offsetDistanceY : canvasHeightIndividualGame});
+		worker.postMessage({rom: rom, i: i, j: j, offsetDistanceX : canvasWidthIndividualGame, offsetDistanceY : canvasHeightIndividualGame});
 		
 	}
 }

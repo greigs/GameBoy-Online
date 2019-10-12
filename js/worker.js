@@ -8,7 +8,7 @@ importScripts("other/resize.js")
 importScripts("GameBoyCore.js")
 importScripts("GameBoyIO.js");
 let gb
-const startgb = (canvas, i,j, offsetDistanceX, offsetDistanceY) => {
+const startgb = (canvas, rom, i,j, offsetDistanceX, offsetDistanceY) => {
 	gb = new GameBoyIO()
 
 	let settings = [						//Some settings.
@@ -28,7 +28,7 @@ const startgb = (canvas, i,j, offsetDistanceX, offsetDistanceY) => {
 		false,								//Use image smoothing based scaling?
 		[true, true, true, true]            //User controlled channel enables.
 	];
-	const rom = i % 2 == 0 ? getMarioRomData() : getZeldaRomData()
+	
     gb.start(canvas, rom, i * offsetDistanceX, j * offsetDistanceY, settings)
 }
 
@@ -55,6 +55,6 @@ self.onmessage = function(e) {
 		postMessage({ image: buff,i: e.data.i, j:e.data.j })
 	} 
 	else{	
-        startgb(new OffscreenCanvas(e.data.offsetDistanceX,e.data.offsetDistanceY),e.data.i,e.data.j, e.data.offsetDistanceX, e.data.offsetDistanceY)   
+        startgb(new OffscreenCanvas(e.data.offsetDistanceX,e.data.offsetDistanceY),e.data.rom, e.data.i,e.data.j, e.data.offsetDistanceX, e.data.offsetDistanceY)   
     } 
 };
