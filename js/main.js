@@ -1,9 +1,9 @@
 
-const columnCount = 5
-const rowCount = 3
+const columnCount = 3
+const rowCount = 2
 const canvasHeightIndividualGame = 144 * 2
 const canvasWidthIndividualGame = 160 * 2
-const borderSize = 2
+const borderSize = 4
 const canvasHeightTotal = (canvasHeightIndividualGame * rowCount) + (rowCount * borderSize) + borderSize
 const canvasWidthTotal = (canvasWidthIndividualGame * columnCount) + (columnCount * borderSize) + borderSize
 let canvas = document.getElementById("canvas")
@@ -24,37 +24,18 @@ for (let i=0; i<columnCount; i++){
 		workers[(columnCount * j) + i] = worker
 		worker.postMessage({ i: i, j: j, offsetDistanceX : canvasWidthIndividualGame, offsetDistanceY : canvasHeightIndividualGame});
 		worker.onmessage = function (e) {
-			offScreenCtx.putImageData(e.data.image, 0, 0);
+			offScreenCtx.putImageData(e.data.image, 0, 0);	
 			let ia =  (e.data.i / canvasWidthIndividualGame)
 			let x = (ia * canvasWidthIndividualGame) + (ia * borderSize) + borderSize
 			let ja =  (e.data.j / canvasHeightIndividualGame)
-			let y = (ja * canvasHeightIndividualGame) + (ja * borderSize) + borderSize
-			let arrayPos = (ja * columnCount) + ia
-			
-			// if (arrayPos === activeIndex - 1 && activeFrame === (activeIndex - 1)){
-			// 	ctx.lineWidth = borderSize * 2
-			// 	ctx.strokeStyle = 'black';
-			// 	ctx.beginPath();
-			// 	ctx.rect(x, y, canvasWidthIndividualGame, canvasHeightIndividualGame);
-			// 	ctx.stroke();
-			// }				
-
-			if (arrayPos === activeIndex && activeFrame !== activeIndex){				
-				ctx.lineWidth = borderSize * 2
-				ctx.strokeStyle = 'lime';
-				ctx.beginPath();
-				ctx.rect(x, y, canvasWidthIndividualGame, canvasHeightIndividualGame);
-				ctx.stroke();
-				activeFrame = activeIndex
-			}	
-			
+			let y = (ja * canvasHeightIndividualGame) + (ja * borderSize) + borderSize	
 			ctx.drawImage(offScreen, x, y, canvasWidthIndividualGame, canvasHeightIndividualGame);
 		}
 	}
 }
 
 let activeIndex = 0
-let activeFrame = activeIndex
+let activeFrame = -1
 let active = workers[activeIndex]
 
 let globalFrameCount = 0
@@ -76,26 +57,59 @@ const changeWorkerInterval = 3000
 
 setInterval(async () => 
 {
-	  globalFrameCount++;
-	  if (runAll){
-		workers.forEach(async function(worker){
-			worker.postMessage({step: true, produceFrame: globalFrameCount % frameDivisionAll === 0})		
-		});
-	  } else if (runAllAsBackground){
-		workers.forEach(async function(worker){			
-			worker.postMessage({step: true, produceFrame: globalFrameCount % (active === worker ? frameDivisionSingle : frameDivisionBackground) === 0})		
-		})
-	  } else{
+	globalFrameCount++;
+	if (runAll){
+	workers.forEach(async function(worker){
+		worker.postMessage({step: true, produceFrame: globalFrameCount % frameDivisionAll === 0})		
+	});
+	} else if (runAllAsBackground){
+	workers.forEach(async function(worker){			
+		worker.postMessage({step: true, produceFrame: globalFrameCount % (active === worker ? frameDivisionSingle : frameDivisionBackground) === 0})		
+	})
+	} else{
 		active.postMessage({step: true, produceFrame: globalFrameCount % frameDivisionSingle === 0})
-	  }
+	}
 },tickInverval)
 
-
-setInterval(() =>{	
-  activeIndex++
-  if (activeIndex === (columnCount * rowCount) - 1){
-    activeIndex = 0
-  }
+const updateActiveGame = (newIndex) => {
+	activeIndex = newIndex
+	active = workers[newIndex]
+	let ja =  (Math.floor(activeIndex / columnCount))
+	let ia =  (activeIndex % columnCount)
+	let x = (ia * canvasWidthIndividualGame) + (ia * borderSize) + borderSize
+	
+	let y = (ja * canvasHeightIndividualGame) + (ja * borderSize) + borderSize
   
-  active = workers[activeIndex]
-}, changeWorkerInterval)
+	ctx.lineWidth = borderSize * 2
+	// disable previous active frame first
+	if (activeFrame > -1){
+
+		let pj = Math.floor(activeFrame / columnCount)
+		let pi = activeFrame % columnCount 		
+		let px = (pi * canvasWidthIndividualGame) + (pi * borderSize) + borderSize
+		let py = (pj * canvasHeightIndividualGame) + (pj * borderSize) + borderSize
+		ctx.strokeStyle = 'black';
+		ctx.beginPath();
+		ctx.rect(px, py, canvasWidthIndividualGame, canvasHeightIndividualGame);
+		ctx.stroke();
+	}
+	
+	ctx.strokeStyle = 'lime';
+	ctx.beginPath();
+	ctx.rect(x, y, canvasWidthIndividualGame, canvasHeightIndividualGame);
+	ctx.stroke();
+				
+	activeFrame = activeIndex
+}
+
+setInterval(() => {	
+	const oldIndex = activeIndex
+	let newIndex = oldIndex + 1
+	if (newIndex === (columnCount * rowCount)){
+		newIndex = 0
+	}
+	console.log(newIndex)
+	updateActiveGame(newIndex)
+  }	
+, changeWorkerInterval)
+updateActiveGame(0)
