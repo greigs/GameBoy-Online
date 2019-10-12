@@ -29,8 +29,8 @@ const startgb = (canvas, i,j, offsetDistanceX, offsetDistanceY) => {
 		false,								//Use image smoothing based scaling?
 		[true, true, true, true]            //User controlled channel enables.
 	];
-	
-    gb.start(canvas, base64_decode(i % 2 == 0 ? zeldaRomData : marioRomData), i * offsetDistanceX, j * offsetDistanceY, settings)
+	const rom = i % 2 == 0 ? getMarioRomData() : getZeldaRomData()
+    gb.start(canvas, rom, i * offsetDistanceX, j * offsetDistanceY, settings)
 }
 
 self.onmessage = function(e) {
