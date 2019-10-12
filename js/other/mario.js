@@ -7,3 +7,5 @@ const getMarioRomData = () =>{
     }
     return marioRomData
 }
+
+export default {getMarioRomData}

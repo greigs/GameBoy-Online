@@ -17,8 +17,9 @@ const offScreen = new OffscreenCanvas(160, 144)
 const offScreenCtx = offScreen.getContext("2d")
 
 const getRomData2 = async () => {
-	const romData = await fetch('test.html')
-	return await romData.arrayBuffer()
+	
+	let myModule = await import('./other/mario.js')
+	return myModule.default.getMarioRomData()
 }
 const launcher = async () => {
 	let workers = []
@@ -118,7 +119,7 @@ const launcher = async () => {
 		, changeWorkerInterval)
 
 	const rom = await getRomData2()
-	const romValid = false
+	const romValid = true
 	if (romValid) {
 		for (let i = 0; i < columnCount; i++) {
 			for (let j = 0; j < rowCount; j++) {
