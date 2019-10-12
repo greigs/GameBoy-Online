@@ -1,5 +1,3 @@
-importScripts("other/zelda.js")
-importScripts("other/mario.js")
 importScripts("other/mobile.js")
 importScripts("other/base64.js")
 importScripts("other/resampler.js")
