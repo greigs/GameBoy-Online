@@ -10,7 +10,6 @@ importScripts("GameBoyIO.js");
 let gb
 const startgb = (canvas, i,j, offsetDistanceX, offsetDistanceY) => {
 	gb = new GameBoyIO()
-	//gb.bindKeyboard();
 
 	let settings = [						//Some settings.
 		false, 								//Turn on sound.
@@ -44,7 +43,18 @@ self.onmessage = function(e) {
     else if (e.data.keyUp){
 		gb.keyUp(e.data.keyUp)
 	}
-	else{
+	else if (e.data.init){
+		const loadingCanv = new OffscreenCanvas(e.data.offsetDistanceX,e.data.offsetDistanceY)	
+		const loadingCtx = loadingCanv.getContext("2d");
+		loadingCtx.fillStyle = 'white';
+		loadingCtx.fillRect(0,0,e.data.offsetDistanceX, e.data.offsetDistanceY)
+		loadingCtx.font = '20px sans-serif';
+		loadingCtx.fillStyle = 'black';
+		loadingCtx.fillText('Loading...', 30, 60)
+		const buff = loadingCtx.getImageData(0,0,e.data.offsetDistanceX,e.data.offsetDistanceY);
+		postMessage({ image: buff,i: e.data.i, j:e.data.j })
+	} 
+	else{	
         startgb(new OffscreenCanvas(e.data.offsetDistanceX,e.data.offsetDistanceY),e.data.i,e.data.j, e.data.offsetDistanceX, e.data.offsetDistanceY)   
     } 
 };
