@@ -42,14 +42,18 @@ const launcher = async () => {
 	let activeIndex = 0
 	let activeFrame = -1
 	let active = workers[activeIndex]
-
+	let romLoaded = false
 	let globalFrameCount = 0
 	window.onkeydown = (e) => {
-		active.postMessage({ keyDown: { keyCode: e.keyCode } })
+		if (romLoaded){
+			active.postMessage({ keyDown: { keyCode: e.keyCode } })
+		}
 	}
 
 	window.onkeyup = (e) => {
-		active.postMessage({ keyUp: { keyCode: e.keyCode } })
+		if (romLoaded){
+			active.postMessage({ keyUp: { keyCode: e.keyCode } })
+		}
 	}
 
 	const runAll = true
@@ -78,7 +82,6 @@ const launcher = async () => {
 		let ja = (Math.floor(activeIndex / columnCount))
 		let ia = (activeIndex % columnCount)
 		let x = (ia * canvasWidthIndividualGame) + (ia * borderSize) + borderSize
-
 		let y = (ja * canvasHeightIndividualGame) + (ja * borderSize) + borderSize
 
 		ctx.lineWidth = borderSize * 2
@@ -88,7 +91,7 @@ const launcher = async () => {
 			let pj = Math.floor(activeFrame / columnCount)
 			let pi = activeFrame % columnCount
 			let px = (pi * canvasWidthIndividualGame) + (pi * borderSize) + borderSize
-			let py = (pj * canvasHeightIndividualGame) + (pj * borderSize) + borderSize
+			let py = (pj * canvasHeightIndividualGame) + (pj * borderSize) + borderSize 
 			ctx.strokeStyle = 'black';
 			ctx.beginPath();
 			ctx.rect(px, py, canvasWidthIndividualGame, canvasHeightIndividualGame);
@@ -123,6 +126,7 @@ const launcher = async () => {
 				worker.postMessage({ rom: rom, i: i, j: j, offsetDistanceX: canvasWidthIndividualGame, offsetDistanceY: canvasHeightIndividualGame });
 			}
 		}
+		romLoaded = true
 
 
 		setInterval(async () => {
