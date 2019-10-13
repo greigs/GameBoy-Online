@@ -196,6 +196,11 @@ class GameBoyIO {
 			cout("GameBoy core cannot be saved while it has not been initialized.", 1);
 		}
 	}
+	saveStateToBase64() {
+		if (this.GameBoyEmulatorInitialized()) {
+			return btoa(JSON.stringify(this.gameboy.saveState(),null,0))
+		}
+	}
 	openState(filename, canvas) {
 		try {
 			if (findValue(filename) != null) {

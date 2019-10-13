@@ -1,4 +1,3 @@
-
 const columnCount = 3
 const rowCount = 2
 const canvasHeightIndividualGame = 144 * 2
@@ -18,7 +17,6 @@ const offScreenCtx = offScreen.getContext("2d")
 let allLoaded = false
 let gbReadyCount = 0
 const getRomData2 = async () => {
-	
 	let myModule = await import('./other/mario.js')
 	return myModule.default.getMarioRomData()
 }
@@ -74,7 +72,6 @@ const launcher = async () => {
 	const tickInverval = 8
 	const changeWorkerInterval = 3000
 	workers.forEach(async function (worker, index) {
-
 		let j = (Math.floor(index / columnCount))
 		let i = (index % columnCount)
 		worker.postMessage({
@@ -87,6 +84,7 @@ const launcher = async () => {
 	})
 
 	const updateActiveGame = (newIndex) => {
+        
 		activeIndex = newIndex
 		active = workers[newIndex]
 		let ja = (Math.floor(activeIndex / columnCount))
@@ -117,7 +115,9 @@ const launcher = async () => {
 
 
 	}
-
+    const saveSnapshot = () =>{
+		workers[0].postMessage({saveState: true})
+	}
 	setInterval(() => {
 		if (allLoaded){
 			const oldIndex = activeIndex
@@ -127,9 +127,9 @@ const launcher = async () => {
 			}
 			console.log(newIndex)
 			updateActiveGame(newIndex)
+			saveSnapshot()
 		}
-	}
-		, changeWorkerInterval)
+	}, changeWorkerInterval)
 
 	const rom = await getRomData2()
 	const romValid = true

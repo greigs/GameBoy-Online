@@ -41,6 +41,13 @@ self.onmessage = function(e) {
     else if (e.data.keyUp){
 		gb.keyUp(e.data.keyUp)
 	}
+	else if (e.data.saveState){
+		const savedStateData = gb.saveStateToBase64()
+		debugger
+	}
+	else if (e.data.loadState){
+		
+	}
 	else if (e.data.init){
 		const loadingCanv = new OffscreenCanvas(e.data.offsetDistanceX,e.data.offsetDistanceY)	
 		const loadingCtx = loadingCanv.getContext("2d");

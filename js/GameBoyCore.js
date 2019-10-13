@@ -3961,7 +3961,7 @@ saveRTCState = function () {
 }
 saveState = function () {
 	return [
-		this.fromTypedArray(this.ROM),
+		[],//this.fromTypedArray(this.ROM),
 		this.inBootstrap,
 		this.registerA,
 		this.FZero,
