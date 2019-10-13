@@ -54,5 +54,7 @@ self.onmessage = function(e) {
 	} 
 	else{	
         startgb(new OffscreenCanvas(e.data.offsetDistanceX,e.data.offsetDistanceY),e.data.rom, e.data.i,e.data.j, e.data.offsetDistanceX, e.data.offsetDistanceY)   
-    } 
+		postMessage({ gbReady: true })
+	} 
+	
 };

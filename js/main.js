@@ -15,7 +15,8 @@ var ctx = canvas.getContext('2d')
 ctx.imageSmoothingEnabled = false;
 const offScreen = new OffscreenCanvas(160, 144)
 const offScreenCtx = offScreen.getContext("2d")
-
+let allLoaded = false
+let gbReadyCount = 0
 const getRomData2 = async () => {
 	
 	let myModule = await import('./other/mario.js')
@@ -29,12 +30,20 @@ const launcher = async () => {
 			workers[(columnCount * j) + i] = worker
 
 			worker.onmessage = function (e) {
-				offScreenCtx.putImageData(e.data.image, 0, 0);
-				let ia = (e.data.i / canvasWidthIndividualGame)
-				let x = (ia * canvasWidthIndividualGame) + (ia * borderSize) + borderSize
-				let ja = (e.data.j / canvasHeightIndividualGame)
-				let y = (ja * canvasHeightIndividualGame) + (ja * borderSize) + borderSize
-				ctx.drawImage(offScreen, x, y, canvasWidthIndividualGame, canvasHeightIndividualGame);
+				if (e.data.gbReady){
+					gbReadyCount++
+					if (gbReadyCount >= (rowCount * columnCount)){
+						allLoaded = true
+					}
+				}
+				else{
+					offScreenCtx.putImageData(e.data.image, 0, 0);
+					let ia = (e.data.i / canvasWidthIndividualGame)
+					let x = (ia * canvasWidthIndividualGame) + (ia * borderSize) + borderSize
+					let ja = (e.data.j / canvasHeightIndividualGame)
+					let y = (ja * canvasHeightIndividualGame) + (ja * borderSize) + borderSize
+					ctx.drawImage(offScreen, x, y, canvasWidthIndividualGame, canvasHeightIndividualGame);
+				}
 			}
 
 		}
@@ -46,13 +55,13 @@ const launcher = async () => {
 	let romLoaded = false
 	let globalFrameCount = 0
 	window.onkeydown = (e) => {
-		if (romLoaded){
+		if (allLoaded){
 			active.postMessage({ keyDown: { keyCode: e.keyCode } })
 		}
 	}
 
 	window.onkeyup = (e) => {
-		if (romLoaded){
+		if (allLoaded){
 			active.postMessage({ keyUp: { keyCode: e.keyCode } })
 		}
 	}
@@ -105,16 +114,20 @@ const launcher = async () => {
 		ctx.stroke();
 
 		activeFrame = activeIndex
+
+
 	}
 
 	setInterval(() => {
-		const oldIndex = activeIndex
-		let newIndex = oldIndex + 1
-		if (newIndex === (columnCount * rowCount)) {
-			newIndex = 0
+		if (allLoaded){
+			const oldIndex = activeIndex
+			let newIndex = oldIndex + 1
+			if (newIndex === (columnCount * rowCount)) {
+				newIndex = 0
+			}
+			console.log(newIndex)
+			updateActiveGame(newIndex)
 		}
-		console.log(newIndex)
-		updateActiveGame(newIndex)
 	}
 		, changeWorkerInterval)
 
