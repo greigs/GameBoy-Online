@@ -43,10 +43,10 @@ self.onmessage = function(e) {
 	}
 	else if (e.data.saveState){
 		const savedStateData = gb.saveStateToBase64()
-		debugger
+		postMessage({ saveStateData: savedStateData })
 	}
 	else if (e.data.loadState){
-		
+		gb.returnFromState(e.data.loadStateData)
 	}
 	else if (e.data.init){
 		const loadingCanv = new OffscreenCanvas(e.data.offsetDistanceX,e.data.offsetDistanceY)	

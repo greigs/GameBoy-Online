@@ -4173,7 +4173,8 @@ saveState = function () {
 returnFromState = function (returnedFrom) {
 	var index = 0;
 	var state = returnedFrom.slice(0);
-	this.ROM = this.toTypedArray(state[index++], "uint8");
+	index++;
+	//this.ROM = this.toTypedArray(state[index++], "uint8");
 	this.ROMBankEdge = Math.floor(this.ROM.length / 0x4000);
 	this.inBootstrap = state[index++];
 	this.registerA = state[index++];
