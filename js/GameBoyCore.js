@@ -4389,7 +4389,7 @@ returnFromState = function (returnedFrom) {
 	this.initializeReferencesFromSaveState();
 	this.memoryReadJumpCompile();
 	this.memoryWriteJumpCompile();
-	this.initLCD();
+	//this.initLCD();
 	//this.initSound();
 	this.noiseSampleTable = (this.channel4BitRange == 0x7FFF) ? this.LSFR15Table : this.LSFR7Table;
 	this.channel4VolumeShifter = (this.channel4BitRange == 0x7FFF) ? 15 : 7;

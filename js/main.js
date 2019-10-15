@@ -27,7 +27,6 @@ const getSaveData = async () => {
 }
 
 const outputLocalStorageLink = (keyName, dataFound, downloadName) => {
-	//return generateDownloadLink(dataFound, keyName, downloadName);
 	return generateDownloadLink("data:application/octet-stream;base64," + dataFound, keyName, downloadName);
 }
 const generateDownloadLink = (address, textData, keyName) => {
@@ -172,12 +171,14 @@ const launcher = async () => {
 	}, changeWorkerInterval)
 
 	const rom = await getRomData2()
+	const saveData = await getSaveData()
 	const romValid = true
 	if (romValid) {
 		for (let i = 0; i < columnCount; i++) {
 			for (let j = 0; j < rowCount; j++) {
 				worker = workers[(columnCount * j) + i]
 				worker.postMessage({ rom: rom, i: i, j: j, offsetDistanceX: canvasWidthIndividualGame, offsetDistanceY: canvasHeightIndividualGame });
+				worker.postMessage({loadState: true, loadStateData : saveData})
 			}
 		}
 		romLoaded = true

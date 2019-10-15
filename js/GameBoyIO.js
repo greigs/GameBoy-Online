@@ -201,7 +201,7 @@ class GameBoyIO {
 			return btoa(JSON.stringify(this.gameboy.saveState(),null,0))
 		}
 	}
-	returnFromState(loadStateData){
+	returnFromState(loadStateData){	
 		this.gameboy.returnFromState(loadStateData);
 	}
 	openState(filename, canvas) {
