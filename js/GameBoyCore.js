@@ -5054,15 +5054,11 @@ graphicsBlit = function () {
 }
 JoyPadEvent = function (key, down) {
 	if (down) {
-		var tmp = this.JoyPad
-		tmp &= 0xFF ^ (1 << key)
-		if (tmp !== this.JoyPad){
-			this.JoyPad &= 0xFF ^ (1 << key);
-			if (!this.cGBC && (!this.usedBootROM || !this.usedGBCBootROM)) {
-				this.interruptsRequested |= 0x10;	//A real GBC doesn't set this!
-				this.remainingClocks = 0;
-				this.checkIRQMatching();
-			}
+		this.JoyPad &= 0xFF ^ (1 << key);
+		if (!this.cGBC && (!this.usedBootROM || !this.usedGBCBootROM)) {
+			this.interruptsRequested |= 0x10;	//A real GBC doesn't set this!
+			this.remainingClocks = 0;
+			this.checkIRQMatching();
 		}
 	}
 	else {

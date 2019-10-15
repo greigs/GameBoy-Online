@@ -1,5 +1,5 @@
-const columnCount = 3
-const rowCount = 2
+const columnCount = 6
+const rowCount = 3
 const canvasHeightIndividualGame = 144 * 2
 const canvasWidthIndividualGame = 160 * 2
 const borderSize = 4
@@ -19,12 +19,16 @@ let firstSave = true
 let gbReadyCount = 0
 let keys = []
 const getRomData2 = async () => {
-	let myModule = await import('./other/mario.js')
-	return myModule.default.getMarioRomData()
+	//let myModule = await import('./other/mario.js')
+	//return myModule.default.getMarioRomData()
+    let myModule = await import('./other/tetris.js')
+	return myModule.default.getTetrisRomData()
 }
 const getSaveData = async () => {
-	let myModule = await import('./other/mariosave.js')
-	return myModule.default.getMarioSaveData()
+	// let myModule = await import('./other/mariosave.js')
+	// return myModule.default.getMarioSaveData()
+	let myModule = await import('./other/tetrissave.js')
+	return myModule.default.getTetrisSaveData()
 }
 
 const outputLocalStorageLink = (keyName, dataFound, downloadName) => {
@@ -110,7 +114,7 @@ const launcher = async () => {
 	const frameDivisionSingle = 1
 	const frameDivisionBackground = 10
 	const tickInverval = 8
-	const changeWorkerInterval = 3000
+	const changeWorkerInterval = 2000
 	workers.forEach(async function (worker, index) {
 		let j = (Math.floor(index / columnCount))
 		let i = (index % columnCount)
@@ -175,13 +179,14 @@ const launcher = async () => {
 	}
 	setInterval(() => {
 		if (allLoaded){
-			const oldIndex = activeIndex
-			let newIndex = oldIndex + 1
-			if (newIndex === (columnCount * rowCount)) {
-				newIndex = 0
-			}
-			console.log(newIndex)
-			updateActiveGame(newIndex)
+			//const oldIndex = activeIndex
+			//let newIndex = oldIndex + 1
+			// if (newIndex === (columnCount * rowCount)) {
+			// 	newIndex = 0
+			// }
+			//console.log(newIndex)
+			//updateActiveGame(newIndex)
+			updateActiveGame(Math.floor(Math.random() * columnCount * rowCount)  )
 		}
 	}, changeWorkerInterval)
 
@@ -193,7 +198,10 @@ const launcher = async () => {
 			for (let j = 0; j < rowCount; j++) {
 				worker = workers[(columnCount * j) + i]
 				worker.postMessage({ rom: rom, i: i, j: j, offsetDistanceX: canvasWidthIndividualGame, offsetDistanceY: canvasHeightIndividualGame });
-				worker.postMessage({loadState: true, loadStateData : saveData})
+				worker.postMessage({ loadState: true, loadStateData : saveData })
+				worker.postMessage({ step: true, produceFrame: true })
+				worker.postMessage({ step: true, produceFrame: true })
+				worker.postMessage({ step: true, produceFrame: true })
 			}
 		}
 		romLoaded = true
