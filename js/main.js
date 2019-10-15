@@ -17,6 +17,7 @@ const offScreenCtx = offScreen.getContext("2d")
 let allLoaded = false
 let firstSave = true
 let gbReadyCount = 0
+let keys = []
 const getRomData2 = async () => {
 	let myModule = await import('./other/mario.js')
 	return myModule.default.getMarioRomData()
@@ -90,18 +91,20 @@ const launcher = async () => {
 	let romLoaded = false
 	let globalFrameCount = 0
 	window.onkeydown = (e) => {
+		keys.push(e.keyCode)
 		if (allLoaded){
 			active.postMessage({ keyDown: { keyCode: e.keyCode } })
 		}
 	}
 
 	window.onkeyup = (e) => {
+		keys = keys.filter(x => x !== e.keyCode)
 		if (allLoaded){
 			active.postMessage({ keyUp: { keyCode: e.keyCode } })
 		}
 	}
 
-	const runAll = true
+	const runAll = false
 	const runAllAsBackground = false
 	const frameDivisionAll = 5
 	const frameDivisionSingle = 1
@@ -121,9 +124,21 @@ const launcher = async () => {
 	})
 
 	const updateActiveGame = (newIndex) => {
-        
+		
+		// send keyups on previous active
+		if (active){
+			keys.forEach(element => {
+				active.postMessage({ keyUp: { keyCode: element } })
+			});
+		}
 		activeIndex = newIndex
 		active = workers[newIndex]
+
+		keys.forEach(element => {
+			active.postMessage({ keyDown: { keyCode: element } })
+		});
+	
+		
 		let ja = (Math.floor(activeIndex / columnCount))
 		let ia = (activeIndex % columnCount)
 		let x = (ia * canvasWidthIndividualGame) + (ia * borderSize) + borderSize
