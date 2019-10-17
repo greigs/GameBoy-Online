@@ -199,9 +199,11 @@ const launcher = async () => {
 				worker = workers[(columnCount * j) + i]
 				worker.postMessage({ rom: rom, i: i, j: j, offsetDistanceX: canvasWidthIndividualGame, offsetDistanceY: canvasHeightIndividualGame });
 				worker.postMessage({ loadState: true, loadStateData : saveData })
-				worker.postMessage({ step: true, produceFrame: true })
-				worker.postMessage({ step: true, produceFrame: true })
-				worker.postMessage({ step: true, produceFrame: true })
+				for (let k = 0; k < 15; k++){
+					worker.postMessage({ step: true, produceFrame: true })
+				}
+				
+				
 			}
 		}
 		romLoaded = true

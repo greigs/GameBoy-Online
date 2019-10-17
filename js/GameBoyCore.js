@@ -5825,7 +5825,10 @@ iterationEndRoutine = function () {
 	if ((this.stopEmulator & 0x1) == 0) {
 		this.audioJIT();	//Make sure we at least output once per iteration.
 		//Update DIV Alignment (Integer overflow safety):
-		this.memory[0xFF04] = (this.memory[0xFF04] + (this.DIVTicks >> 8)) & 0xFF;
+		//Add some wacky randomness tor tetris savestate loading
+		// Tetris relies on reading the divider register, at address 0xff04, as the source of entropy to determine which random block will be next.
+		this.memory[0xFF04] = (this.memory[0xFF04] + (this.DIVTicks >> 8)) & 0xFF + Math.floor(Math.random() * 100);
+		//this.memory[0xFF04] = (this.memory[0xFF04] + (this.DIVTicks >> 8)) & 0xFF;
 		this.DIVTicks &= 0xFF;
 		//Update emulator flags:
 		this.stopEmulator |= 1;			//End current loop.
